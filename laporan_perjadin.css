@@ -1,0 +1,304 @@
+/* ===== GLOBAL ===== */
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  padding-bottom: 120px; /* ruang untuk tombol upload */
+  background: url("img/bg_perjadin.jpg") center/cover no-repeat fixed;
+  color: #333;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  background-color: #0b7b2e;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-left img {
+  height: 48px;
+  pointer-events: none;
+}
+
+.navbar-title {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 25px;
+}
+
+.navbar-title:hover {
+  text-decoration: underline;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.dashboard-btn {
+  background: white;
+  color: #0b7b2e;
+  padding: 6px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.dashboard-btn:hover {
+  background: #e6ffe9;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  text-align: center;
+  color: white;
+  padding: 20px 0;
+}
+
+/* ===== SEARCH ===== */
+.search-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 10px auto 20px;
+  text-align: center;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+#searchInput:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 5px rgba(2,132,199,0.35);
+}
+
+/* ===== TABLE ===== */
+#tabelContainer {
+  width: 95%;
+  margin: 0 auto 40px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  font-size: 0.95rem;
+}
+
+thead {
+  background-color: #0b7b2e;
+  color: white;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody tr:hover {
+  background: #e0f2fe; /* biru muda */
+}
+
+/* ===== BADGE STATUS ===== */
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge.lengkap {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #16a34a;
+}
+
+.badge.belum {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+/* ===== BUTTONS PDF ===== */
+.btn-preview,
+.btn-download {
+  margin: 3px;
+  padding: 6px 9px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-preview {
+  background-color: #e7f0ff;
+  color: #0d6efd;
+}
+
+.btn-preview:hover {
+  background-color: #d0e3ff;
+}
+
+.btn-download {
+  background-color: #d1f8e5;
+  color: #059669;
+}
+
+.btn-download:hover {
+  background-color: #b8f1d7;
+}
+
+/* ===== LOADER ===== */
+#loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #0b7b2e;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 60px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== MODAL PDF ===== */
+#pdfModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#pdfModal.show {
+  display: flex;
+}
+
+.modal-content {
+  width: 90%;
+  height: 90%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+#pdfFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background: #e60000;
+}
+
+/* ===== BUTTON UPLOAD (FINAL, SINGLE SOURCE) ===== */
+.btn-upload-main {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: #0284c7;     /* biru laut */
+  color: white;
+
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  box-shadow: 0 8px 18px rgba(2,132,199,0.35);
+  z-index: 50;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-upload-main:hover {
+  background: #38bdf8;
+  transform: translate(-50%, -4px) scale(1.05);
+}
+
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.85rem;
+  }
+
+  .navbar-title {
+    font-size: 18px;
+  }
+}
+/* ===== ICON UPLOAD MODERN ===== */
+.upload-icon {
+  font-size: 1.4rem;
+  color: #38bdf8; /* biru muda */
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* hover icon ikut animasi */
+.btn-upload-main:hover .upload-icon {
+  color: #ffffff;
+  transform: scale(1.25);
+}
+.btn-upload {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  font-weight: 600;
+  color: #0284c7;              /* biru modern */
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}
+.btn-upload:hover {
+  color: #38bdf8;              /* biru muda */
+  transform: scale(1.35);
+  text-shadow: 0 0 8px rgba(56,189,248,0.6);
+}

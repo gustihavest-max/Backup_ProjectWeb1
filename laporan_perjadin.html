@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laporan Perjalanan Dinas</title>
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="laporan_perjadin.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="navbar-left">
+    <img src="img/Logo-Kementan.png" alt="Logo Kementan">
+    <a class="navbar-title"
+       href="https://perkebunan.brmp.pertanian.go.id/"
+       target="_blank">
+      BRMP PERKEBUNAN
+    </a>
+  </div>
+  <div class="navbar-right">
+    <span id="userDisplay"></span>
+    <a href="dashboard.html" class="dashboard-btn">⬅️ Dashboard</a>
+  </div>
+</header>
+
+<!-- HEADER -->
+<div class="page-header">
+  <h1>📑 Laporan Perjalanan Dinas</h1>
+</div>
+
+<!-- SEARCH -->
+<div class="search-container">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="🔍 Cari No. ST / Nama Pegawai">
+</div>
+
+<!-- LOADER -->
+<div id="loader" class="loader"></div>
+
+<!-- TABLE -->
+<div id="tabelContainer" class="hidden">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>No. ST</th>
+          <th>Nama Pegawai</th>
+          <th>Status</th>
+          <th>Laporan</th>
+          <th>SPPD</th>
+          <th>SPJ</th>
+          <th>Surat Tugas</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabelPerjadin"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL PREVIEW PDF -->
+<div id="pdfModal" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeModal()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <iframe id="pdfFrame"></iframe>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const email = localStorage.getItem("loggedInUser");
+  if (!email) {
+    alert("Silakan login terlebih dahulu.");
+    location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("userDisplay").textContent = "👤 " + email;
+
+  const loader = document.getElementById("loader");
+  const container = document.getElementById("tabelContainer");
+  const tbody = document.getElementById("tabelPerjadin");
+
+  try {
+    const res = await fetch("/.netlify/functions/laporan_perjadin");
+    const data = await res.json();
+
+    loader.style.display = "none";
+    container.classList.remove("hidden");
+
+    if (!data.success || !data.rows || data.rows.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8">Belum ada laporan perjalanan dinas.</td>
+        </tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.rows.map(row => {
+      const lengkap =
+        !!row.url_laporan &&
+        !!row.url_sppd &&
+        !!row.url_spj &&
+        !!row.url_st;
+
+      return `
+        <tr>
+          <td><strong>${row.id_perjadin}</strong></td>
+          <td>${row.nama || "-"}</td>
+          <td>
+            <span class="badge ${lengkap ? "lengkap" : "belum"}">
+              ${lengkap ? "Lengkap" : "Belum Lengkap"}
+            </span>
+          </td>
+          ${renderDoc(row.url_laporan)}
+          ${renderDoc(row.url_sppd)}
+          ${renderDoc(row.url_spj)}
+          ${renderDoc(row.url_st)}
+          <td>
+            <button
+              class="btn-upload"
+              title="Upload Dokumen"
+              onclick="goUpload('${row.id_perjadin}', '${encodeURIComponent(row.nama || '')}')"
+            >
+              ➕
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+  } catch (err) {
+    console.error("Gagal memuat data:", err);
+    loader.style.display = "none";
+    tbody.innerHTML =
+      `<tr><td colspan="8">Gagal memuat data.</td></tr>`;
+  }
+});
+
+/* ===== RENDER DOKUMEN ===== */
+function renderDoc(url) {
+  if (!url) return "<td>-</td>";
+
+  return `
+    <td>
+      <button class="btn-preview" onclick="previewPDF('${url}')">
+        <i class="fa-solid fa-eye"></i>
+      </button>
+      <button class="btn-download" onclick="downloadPDF('${url}')">
+        <i class="fa-solid fa-download"></i>
+      </button>
+    </td>
+  `;
+}
+
+/* ===== NAVIGASI KE FORM UPLOAD ===== */
+function goUpload(idPerjadin, nama) {
+  window.location.href =
+    `upload_laporan.html?id_perjadin=${idPerjadin}&nama=${nama}`;
+}
+
+/* ===== PREVIEW PDF ===== */
+function previewPDF(url) {
+  document.getElementById("pdfFrame").src = url;
+  document.getElementById("pdfModal").classList.remove("hidden");
+  document.getElementById("pdfModal").classList.add("show");
+}
+
+/* ===== DOWNLOAD PDF ===== */
+async function downloadPDF(url) {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  const fileURL = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = fileURL;
+  a.download = url.split("/").pop() || "dokumen.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(fileURL);
+}
+
+/* ===== CLOSE MODAL ===== */
+function closeModal() {
+  document.getElementById("pdfFrame").src = "";
+  document.getElementById("pdfModal").classList.remove("show");
+  document.getElementById("pdfModal").classList.add("hidden");
+}
+
+/* ===== SEARCH ===== */
+document.getElementById("searchInput").addEventListener("keyup", function () {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll("#tabelPerjadin tr").forEach(row => {
+    row.style.display =
+      row.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+});
+</script>
+
+</body>
+</html>

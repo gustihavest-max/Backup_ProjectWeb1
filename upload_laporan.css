@@ -1,0 +1,165 @@
+/* =========================================================
+   GLOBAL SCROLL FIX & FONT
+========================================================= */
+html, body {
+    height: auto !important;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    scroll-behavior: smooth;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    background: url("img/bg_perjadin.jpg") center/cover no-repeat fixed;
+    background-size: cover;
+    color: #333;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+.navbar {
+    background-color: #059669;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+}
+.navbar-left img { height: 50px; }
+.navbar-title { font-weight: 700; font-size: 20px; }
+
+/* =========================================================
+   FORM & TABLE WRAPPER
+========================================================= */
+.table-wrapper {
+    width: 90%;
+    margin: 30px auto;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+/* Inputs & Labels */
+label {
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    display: block;
+    color: #374151;
+}
+input[type="text"], input[type="file"], textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+input:focus, textarea:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.3);
+    outline: none;
+}
+
+/* Button */
+#btnSimpan {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    margin-top: 25px;
+    background-color: #059669;
+    color: white;
+}
+#btnSimpan:hover:not([disabled]) {
+    background-color: #047857;
+}
+#btnSimpan:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   POPUP NOTIFIKASI MODERN DI TENGAH LAYAR
+========================================================= */
+.notif-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 9999;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.notif-popup.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Popup Box */
+.popup-content {
+    background: #ffffff;
+    width: 420px;
+    max-width: 92%;
+    padding: 30px 34px;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    animation: popupModern 0.45s cubic-bezier(.22,1.28,.36,1);
+}
+
+/* Animasi muncul bounce modern */
+@keyframes popupModern {
+    0%   { transform: scale(0.6); opacity: 0; }
+    60%  { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* Icon popup */
+.popup-icon {
+    font-size: 70px;
+    display: inline-block;
+    margin-bottom: 15px;
+    animation: iconPop 0.4s cubic-bezier(.18,1.4,.36,1);
+}
+@keyframes iconPop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* Success / Error Colors */
+.success .popup-icon { color: #16a34a; }
+.error .popup-icon   { color: #dc2626; }
+
+/* Judul & Pesan */
+.popup-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.popup-message {
+    font-size: 17px;
+    line-height: 1.6;
+    margin-top: 5px;
+    color: #444;
+}
+
+/* Border kiri */
+.success .popup-content { border-left: 7px solid #16a34a; }
+.error .popup-content   { border-left: 7px solid #dc2626; }

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil Saya</title>
+  <link rel="stylesheet" href="profil-style.css" />
+</head>
+<body>
+
+  <!-- 🟩 NAVBAR -->
+  <header class="navbar">
+    <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-brand" target="_blank">
+      <img src="img/Logo-Kementan.png" alt="Logo Kementan">
+      BRMP PERKEBUNAN
+    </a>
+    <nav class="navbar-nav">
+      <span id="userDisplay" class="nav-link"></span>
+      <a href="dashboard.html" class="nav-link back-btn">⬅️ Dashboard</a>
+    </nav>
+  </header>
+
+  <!-- 🟩 CARD PROFIL -->
+  <main class="profile-container">
+    <div class="profile-header">
+      <!-- 👉 Foto profil default, akan diganti otomatis setelah upload / ambil dari DB -->
+      <img src="foto-profil.jpg" alt="Foto Profil" class="profile-picture" id="fotoProfil">
+      <h2>Profil Saya</h2>
+    </div>
+    <div id="profilData" class="profile-grid">Memuat data…</div>
+  </main>
+
+  <!-- 🟩 Tombol upload -->
+  <div class="upload-container">
+    <!-- 👉 Input file disembunyikan, hanya tombol upload yang terlihat -->
+    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+    <button id="uploadBtn" class="upload-btn">Upload Foto Baru</button>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const email = localStorage.getItem('loggedInUser');
+
+    // 👉 Jika belum login, arahkan ke halaman login
+    if (!email) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // 👉 Tampilkan email user di navbar
+    document.getElementById('userDisplay').textContent = '👤 ' + email;
+
+    // ======================================================
+    // 🔹 1. Ambil data profil dari tabel daftaruser
+    // ======================================================
+    try {
+      const res = await fetch('/.netlify/functions/profil', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // 👉 Tampilkan data profil ke dalam grid
+        document.getElementById('profilData').innerHTML = `
+          <div class="profile-item"><h3>NIP</h3><p>${data.nip}</p></div>
+          <div class="profile-item"><h3>Email</h3><p>${data.email}</p></div>
+          <div class="profile-item"><h3>Nama</h3><p>${data.nama}</p></div>
+          <div class="profile-item"><h3>Phone</h3><p>${data.phone}</p></div>
+        `;
+        window.currentNip = data.nip; // 👉 disimpan untuk referensi upload foto
+      } else {
+        document.getElementById('profilData').textContent = data.message || 'Gagal memuat profil.';
+      }
+    } catch (err) {
+      document.getElementById('profilData').textContent = 'Kesalahan server.';
+    }
+
+    // ======================================================
+    // 🔹 2. Ambil foto user dari tabel userphoto
+    // ======================================================
+    try {
+      const resFoto = await fetch('/.netlify/functions/profilphoto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const dataFoto = await resFoto.json();
+
+      // 👉 Jika ada foto tersimpan di database, tampilkan di halaman
+      if (resFoto.ok && dataFoto.foto) {
+        document.getElementById('fotoProfil').src = dataFoto.foto;
+      }
+    } catch (err) {
+      console.error('Error ambil foto:', err);
+    }
+
+    // ======================================================
+    // 🔹 3. Upload foto baru ke Cloudinary
+    // ======================================================
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    // 👉 Klik tombol upload membuka file picker
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    // 👉 Saat user pilih file
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      // 🔧 Konfigurasi Cloudinary kamu
+      const cloudName = 'ddbeawzos';
+      const uploadPreset = 'photobun'; // unsigned preset dari Cloudinary
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', uploadPreset);
+
+      uploadBtn.textContent = 'Mengunggah...';
+      uploadBtn.disabled = true;
+
+      try {
+        // 👉 Upload ke Cloudinary (kategori: image)
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.secure_url) {
+          // 👉 Tampilkan foto baru langsung di halaman
+          document.getElementById('fotoProfil').src = data.secure_url;
+
+          // 👉 Kirim URL Cloudinary ke backend untuk disimpan ke MySQL
+          const payload = {
+            email: email,
+            nip: window.currentNip,
+            foto: data.secure_url
+          };
+
+          const resSave = await fetch('/.netlify/functions/profilphoto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const dataSave = await resSave.json();
+
+          if (resSave.ok && dataSave.success) {
+            alert('✅ Foto berhasil diupload & disimpan ke database!');
+          } else {
+            alert('⚠️ Gagal menyimpan ke database: ' + (dataSave.message || ''));
+          }
+        } else {
+          alert('⚠️ Upload ke Cloudinary gagal.');
+        }
+      } catch (err) {
+        console.error('Error upload foto:', err);
+        alert('❌ Terjadi kesalahan saat upload foto.');
+      } finally {
+        uploadBtn.textContent = 'Upload Foto Baru';
+        uploadBtn.disabled = false;
+      }
+    });
+  });
+  </script>
+</body>
+</html>

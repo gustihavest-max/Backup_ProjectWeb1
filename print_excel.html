@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cetak E-Perjadin</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="print_excel.css">
+</head>
+<body class="bg-cover bg-center bg-fixed" style="background-image: url('img/bg_perjadin.jpg');">
+
+  <!-- NAVBAR -->
+  <header class="navbar flex justify-between items-center p-4 bg-white bg-opacity-80 shadow-md">
+    <div class="flex items-center gap-3">
+      <img src="img/Logo-Kementan.png" alt="Logo Kementan" class="h-12">
+      <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-title text-lg font-bold" target="_blank">
+        BRMP PERKEBUNAN
+      </a>
+    </div>
+    <nav class="flex items-center gap-4">
+      <span id="userDisplay" class="font-semibold"></span>
+      <a href="dashboard.html" class="dashboard-btn text-white bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded transition">⬅️ Dashboard</a>
+    </nav>
+  </header>
+
+  <!-- HEADER PAGE -->
+  <div class="page-header text-center py-8">
+    <h1 class="text-2xl font-bold">📋 Daftar Perjalanan Dinas</h1>
+    <p>Klik tombol "Cetak Excel" pada baris yang ingin dicetak.</p>
+  </div>
+
+  <div id="loader" class="loader text-center py-10">Memuat data...</div>
+
+  <!-- TABEL DATA -->
+  <div id="tabelContainer" class="hidden px-4">
+    <div class="table-wrapper overflow-x-auto">
+      <table class="min-w-full border-collapse shadow-lg bg-white bg-opacity-90">
+        <thead class="bg-blue-700 text-white">
+          <tr>
+            <th class="p-3 border">No. ST</th>
+            <th class="p-3 border">Nama Pegawai (Total)</th>
+            <th class="p-3 border">Tujuan / Lokasi</th>
+            <th class="p-3 border">Tanggal</th>
+            <th class="p-3 border">Pejabat</th>
+            <th class="p-3 border">Waktu Input</th>
+            <th class="p-3 border">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabelPerjadin"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL KONFIRMASI -->
+  <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full text-center">
+      <p id="modalText" class="mb-4 font-semibold">Apakah Anda yakin ingin mencetak data ini?</p>
+      <div class="flex justify-center gap-4">
+        <button id="modalYes" class="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded transition">Yes</button>
+        <button id="modalNo" class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded transition">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ExcelJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+
+  <script>
+    // =========================
+    // Helper + UI variables
+    // =========================
+    const tbody = document.getElementById('tabelPerjadin');
+    const loader = document.getElementById('loader');
+    const tableContainer = document.getElementById('tabelContainer');
+    const confirmModal = document.getElementById('confirmModal');
+
+    // format tanggal rentang
+    const formatDateRange = (start, end) => {
+      const dateStart = new Date(start).toLocaleDateString('id-ID');
+      const dateEnd = new Date(end).toLocaleDateString('id-ID');
+      return `${dateStart} - ${dateEnd}`;
+    };
+
+    // =========================
+    // Modal confirm utility
+    // =========================
+    function showConfirmModal(groupData, callback) {
+      const mainRow = groupData[0];
+      document.getElementById('modalText').innerText = `Anda yakin ingin mencetak data perjadin untuk ${groupData.length} pegawai ke ${mainRow.tujuan}?`;
+      confirmModal.classList.remove('hidden');
+
+      const yes = document.getElementById('modalYes');
+      const no = document.getElementById('modalNo');
+
+      // reset handlers untuk menghindari multiple trigger
+      yes.onclick = () => {
+        confirmModal.classList.add('hidden');
+        callback(true);
+      };
+      no.onclick = () => {
+        confirmModal.classList.add('hidden');
+        callback(false);
+      };
+    }
+
+    // =========================
+    // Copy style dari satu baris ke baris lain (cell-by-cell)
+    // Aman untuk ExcelJS di browser.
+    // =========================
+    function copyRowStyle(srcRow, destRow) {
+      // pastikan ada srcRow & destRow
+      if (!srcRow || !destRow) return;
+      // salin style tiap cell
+      srcRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        try {
+          const targetCell = destRow.getCell(colNumber);
+          // deep-clone style object agar tidak reference
+          targetCell.style = JSON.parse(JSON.stringify(cell.style || {}));
+          // jika ada nilai format (numFmt) atau tipe lain, style sudah termasuk
+        } catch (e) {
+          // jangan crash jika ada cell yang aneh
+          console.warn('copyRowStyle warning col', colNumber, e.message);
+        }
+      });
+      // juga salin height jika ada
+      try {
+        destRow.height = srcRow.height;
+      } catch (e) {}
+    }
+
+    // ======================
+//   EXPORT KE EXCEL FIX
+// ======================
+const exportToExcel = async (groupData) => {
+  showConfirmModal(groupData, async (isConfirmed) => {
+    if (!isConfirmed) return;
+
+    const mainRow = groupData[0];
+    const pegawaiList = groupData; // 1 - 3 orang
+
+    try {
+      const resp = await fetch('/template_ST.xlsx');
+      const arrayBuffer = await resp.arrayBuffer();
+
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(arrayBuffer);
+      const ws = workbook.worksheets[0];
+
+      // =======================
+      //  BAGIAN 1 → Data tunggal
+      // =======================
+      ws.getCell('D27').value = mainRow.tujuan;
+      ws.getCell('D30').value = formatDateRange(mainRow.tanggal_berangkat, mainRow.tanggal_pulang);
+      ws.getCell('E39').value = mainRow.pj_kegiatan;
+      ws.getCell('D28').value = mainRow.maksud;
+      ws.getCell('I3').value = mainRow.email_user;
+      ws.getCell('I2').value = new Date(mainRow.created_at).toLocaleString();
+      ws.getCell('D29').value = mainRow.lama_perjalanan;
+      ws.getCell('D49').value = mainRow.rencanabiaya;
+
+      // =====================================
+      //  BAGIAN 2 → Isi tabel pegawai B15–E23
+      //  TANPA insertRows, TANPA copy style
+      // =====================================
+
+      const START_ROW = 15;    // row untuk pegawai pertama
+      const MAX_ROWS  = 23;    // range akhir template
+      const MAX_COUNT = MAX_ROWS - START_ROW + 1; // total slot tersedia (9)
+
+      // clear slot kosong dulu
+      for (let r = START_ROW; r <= MAX_ROWS; r++) {
+        ws.getCell(`B${r}`).value = null; // nama
+        ws.getCell(`D${r}`).value = null; // golongan
+        ws.getCell(`E${r}`).value = null; // jabatan (ingat: jabatan di kolom E → B=2, D=4, E=5)
+      }
+
+      // isi sesuai jumlah pegawai
+      pegawaiList.forEach((pegawai, index) => {
+        const row = START_ROW + index;
+
+        // Safety guard, kalau lebih dari slot template
+        if (row > MAX_ROWS) return;
+
+        ws.getCell(`B${row}`).value = pegawai.nama;
+        ws.getCell(`D${row}`).value = pegawai.golongan;
+        ws.getCell(`E${row}`).value = pegawai.jabatan;
+      });
+
+      // ========================
+      //  BAGIAN 3 → Download file
+      // ========================
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download =
+        `perjadin_${mainRow.tujuan.replace(/\s/g, '_')}_${mainRow.created_at.slice(0,10)}.xlsx`;
+      link.click();
+
+    } catch (err) {
+      console.error('Gagal generate Excel:', err);
+      alert('Gagal generate Excel. Cek console untuk detail. Pastikan template_ST.xlsx tersedia dan START_ROW sesuai template.');
+    }
+  });
+};
+
+
+    // =========================
+    // Group data berdasarkan tujuan + tanggal + pengaju (mirip kode sebelumnya)
+    // =========================
+    function groupPerjadinData(data) {
+      const grouped = {};
+      data.forEach(row => {
+        const key = `${row.tujuan}_${row.tanggal_berangkat}_${row.email_user}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(row);
+      });
+      return Object.values(grouped);
+    }
+
+    // =========================
+    // Load data & render tabel
+    // =========================
+    document.addEventListener('DOMContentLoaded', async () => {
+      const email = localStorage.getItem('loggedInUser') || 'User';
+      document.getElementById('userDisplay').textContent = `👤 ${email}`;
+
+      try {
+        const res = await fetch('/.netlify/functions/get-perjadin');
+        if (!res.ok) throw new Error(`Fetch data gagal: ${res.status}`);
+        const allData = await res.json();
+
+        loader.style.display = 'none';
+        tableContainer.classList.remove('hidden');
+
+        if (!Array.isArray(allData) || allData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-gray-500">Belum ada data E-Perjadin.</td></tr>`;
+          return;
+        }
+
+        const groupedPerjadinData = groupPerjadinData(allData);
+
+        tbody.innerHTML = groupedPerjadinData.map((group, idx) => {
+          const mainRow = group[0];
+          const namaList = group.map(p => p.nama).join(', ');
+          return `
+            <tr data-group-index="${idx}">
+              <td class="p-2 border font-semibold text-center">
+  ${mainRow.id_perjadin}
+</td>
+
+              <td class="p-2 border font-semibold">${namaList} (${group.length} org)</td>
+              <td class="p-2 border">${mainRow.tujuan}</td>
+              <td class="p-2 border">${formatDateRange(mainRow.tanggal_berangkat, mainRow.tanggal_pulang)}</td>
+              <td class="p-2 border">${mainRow.pj_kegiatan}</td>
+              <td class="p-2 border">${new Date(mainRow.created_at).toLocaleString('id-ID')}</td>
+              <td class="p-2 border">
+                <button class="export-btn text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition" data-index="${idx}">📥 Cetak Excel</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // pasang event handler export
+        tbody.querySelectorAll('.export-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const groupIndex = Number(e.target.getAttribute('data-index'));
+            // Ambil kembali grouped data dari DOM (bisa disimpan di variable luar jika mau)
+            // Simpel: panggil ulang fetch allData? Untuk efisiensi kita menyimpan groupedPerjadinData di closure.
+            // Untuk sekarang kita simple - ambil semua rows lagi dari server (lebih aman kalau data berubah)
+            // Namun untuk kemudahan, gunakan groupedPerjadinData yang dideklarasikan di scope atas
+          });
+        });
+
+        // supaya export-btn benar-benar punya akses ke data, simpan grouped di property tbody
+        tbody._groupedData = groupedPerjadinData;
+
+        // pasang ulang event handler dengan akses ke grouped data
+        tbody.querySelectorAll('.export-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = Number(e.target.getAttribute('data-index'));
+            const groupData = tbody._groupedData[idx];
+            exportToExcel(groupData);
+          });
+        });
+
+      } catch (err) {
+        console.error('Error load data:', err);
+        loader.style.display = 'none';
+        tableContainer.classList.remove('hidden');
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-red-500">Kesalahan server saat memuat data.</td></tr>`;
+      }
+    });
+  </script>
+</body>
+</html>

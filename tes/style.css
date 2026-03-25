@@ -1,0 +1,123 @@
+/* ===============================
+   GLOBAL STYLE
+================================= */
+body {
+  margin: 0;
+  background: url('bg-night.png') no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* wadah utama */
+.space {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ===============================
+   TEKS PETUNJUK
+================================= */
+.info-text {
+  position: absolute;      /* ubah jadi absolute */
+  top: 5%;                 /* jarak dari atas layar, sesuaikan selera */
+  left: 53%;
+  transform: translateX(-50%); /* benar-benar di tengah horizontal */
+  
+  text-align: center;      /* teks di tengah */
+  font-size: 1.3rem;       /* ukuran sedang */
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  z-index: 5;
+}
+
+/* ===============================
+   BUMI, BULAN & ROKET
+================================= */
+
+/* Bumi di tengah */
+.earth {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+/* Bulan */
+.moon {
+  position: absolute;
+  top: 17%;
+  right: 11%;
+  width: 100px;
+  z-index: 1;
+}
+
+/* Orbit container */
+.orbit-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  animation: spin 10s linear infinite;
+}
+
+/* Link orbit */
+.orbit-link {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+}
+
+/* Roket */
+.rocket {
+  width: 60px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.rocket:hover {
+  transform: scale(1.3) rotate(-10deg);
+  filter: drop-shadow(0 0 15px rgba(255,255,255,0.8));
+}
+
+/* animasi orbit */
+@keyframes spin {
+  from {transform: translate(-50%, -50%) rotate(0deg);}
+  to   {transform: translate(-50%, -50%) rotate(360deg);}
+}
+
+/* ===============================
+   ASAP / SMOKE
+================================= */
+.smoke-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* supaya klik masih kena roket */
+  z-index: 0;
+}
+
+.smoke {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(200,200,200,0.7);
+  border-radius: 50%;
+  animation: fadeUp 2s linear forwards;
+}
+
+@keyframes fadeUp {
+  0% {opacity:1; transform:scale(1);}
+  100% {opacity:0; transform:translateY(-50px) scale(2);}
+}

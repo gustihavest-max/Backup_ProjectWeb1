@@ -1,0 +1,231 @@
+<!-- Updated HTML with added No & Golongan columns, table widened to 90%, row hover zoom/blue effect -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat E-Perjadin</title>
+
+  <!-- Font & CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="riwayat_perjadin.css">
+
+  <style>
+    /* Tambahan CSS sesuai permintaan */
+    .table-wrapper {
+      width: 90% !important;
+      margin: auto;
+    }
+
+    table tbody tr:hover {
+      background: #e3f2ff !important;
+      transform: scale(1.01);
+      transition: 0.15s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="navbar-left">
+      <img src="img/Logo-Kementan.png" alt="Logo Kementan" />
+      <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-title" target="_blank">
+        BRMP PERKEBUNAN
+      </a>
+    </div>
+    <nav class="navbar-right">
+      <span id="userDisplay"></span>
+      <a href="dashboard.html" class="dashboard-btn">⬅️ Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="page-header">
+    <h1>📋 Riwayat Permohonan Perjalanan Dinas</h1>
+  </div>
+
+  <!-- FILTER SEARCH -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="🔍 Cari No. ST / Nama / Tujuan..." />
+  </div>
+
+  <div id="loader" class="loader"></div>
+
+  <div id="tabelContainer" class="hidden fade-in">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>No. ST</th>
+            <th>Nama Pegawai</th>
+            <th>Golongan</th>
+            <th>Tujuan</th>
+            <th>Maksud</th>
+            <th>Tanggal Berangkat</th>
+            <th>Tanggal Pulang</th>
+            <th>Email Pengaju</th>
+            <th>Rencana Biaya</th>
+            <th>Data Dukung</th>
+          </tr>
+        </thead>
+        <tbody id="tabelPerjadin"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL PREVIEW PDF -->
+  <div id="pdfModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModal" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+      <iframe id="pdfFrame" src="" frameborder="0"></iframe>
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const email = localStorage.getItem("loggedInUser");
+  if (!email) {
+    alert("Silakan login terlebih dahulu.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("userDisplay").textContent = `👤 ${email}`;
+
+  const loader = document.getElementById("loader");
+  const tableContainer = document.getElementById("tabelContainer");
+  const tbody = document.getElementById("tabelPerjadin");
+
+  try {
+    const res = await fetch("/.netlify/functions/riwayat_perjadin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+    loader.style.display = "none";
+    tableContainer.classList.remove("hidden");
+
+    if (!res.ok || !data.success || data.rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-gray-500">Belum ada data E-Perjadin.</td></tr>`;
+      return;
+    }
+
+    
+    tbody.innerHTML = data.rows
+      .map(row => {
+        const tglBerangkat = row.tanggal_berangkat ? row.tanggal_berangkat.split("T")[0] : "-";
+        const tglPulang = row.tanggal_pulang ? row.tanggal_pulang.split("T")[0] : "-";
+
+        return `
+          <tr>
+            <td>${row.id_perjadin}</td>
+            <td>${row.nama}</td>
+            <td>${row.golongan}</td>
+            <td>${row.tujuan}</td>
+            <td>${row.maksud}</td>
+            <td>${tglBerangkat}</td>
+            <td>${tglPulang}</td>
+            <td>${row.email_user}</td>
+
+            <td>
+              ${
+                row.urlbiaya
+                  ? `
+                    <button onclick="previewPDF('${row.urlbiaya}')" class="btn-preview"><i class="fa-solid fa-eye"></i></button>
+                    <button onclick="downloadPDF('${row.urlbiaya}')" class="btn-download"><i class="fa-solid fa-download"></i></button>
+                    `
+                  : "-"
+              }
+            </td>
+
+            <td>
+              ${
+                row.urldatadukung
+                  ? `
+                    <button onclick="previewPDF('${row.urldatadukung}')" class="btn-preview"><i class="fa-solid fa-eye"></i></button>
+                    <button onclick="downloadPDF('${row.urldatadukung}')" class="btn-download"><i class="fa-solid fa-download"></i></button>
+                    `
+                  : "-"
+              }
+            </td>
+          </tr>`;
+      })
+      .join("");
+
+  } catch (err) {
+    console.error("Error ambil data:", err);
+    loader.style.display = "none";
+    tableContainer.classList.remove("hidden");
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-red-500">Kesalahan server.</td></tr>`;
+  }
+});
+
+/* ============ PREVIEW PDF ============ */
+function previewPDF(url) {
+  const modal = document.getElementById("pdfModal");
+  const frame = document.getElementById("pdfFrame");
+  frame.src = url;
+  modal.classList.add("show");
+}
+
+/* ============ DOWNLOAD PDF ============ */
+async function downloadPDF(url) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    const fileURL = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = fileURL;
+    const filename = url.split("/").pop().split("?")[0] || "file.pdf";
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(fileURL), 1000);
+
+  } catch (error) {
+    console.error("Gagal download PDF:", error);
+    alert("Gagal mengunduh file.");
+  }
+}
+
+/* ============ CLOSE MODAL ============ */
+document.getElementById("closeModal").addEventListener("click", () => {
+  const modal = document.getElementById("pdfModal");
+  const frame = document.getElementById("pdfFrame");
+  frame.src = "";
+  modal.classList.remove("show");
+});
+
+/* ============ FILTER SEARCH (No. ST, Nama, Tujuan) ============ */
+document.getElementById("searchInput").addEventListener("keyup", () => {
+  const keyword = document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase()
+    .trim();
+
+  const rows = document.querySelectorAll("#tabelPerjadin tr");
+
+  rows.forEach(row => {
+    const noST   = row.children[0]?.textContent.toLowerCase() || "";
+    const nama   = row.children[1]?.textContent.toLowerCase() || "";
+    const tujuan = row.children[3]?.textContent.toLowerCase() || "";
+
+    const cocok =
+      noST.includes(keyword) ||
+      nama.includes(keyword) ||
+      tujuan.includes(keyword);
+
+    row.style.display = cocok ? "" : "none";
+  });
+});
+
+</script>
+
+</body>
+</html>

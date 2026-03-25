@@ -1,0 +1,232 @@
+/* ===== GLOBAL ===== */
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+    min-height: 100vh;
+    padding-bottom: 50px; 
+  background:  url("img/bg_perjadin.jpg") center/cover no-repeat fixed;
+  background-size: cover;
+  color: #333;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  background-color: #0b7b2e; /* hijau */
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: none;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-left img {
+  height: 48px;
+  user-select: none;
+  pointer-events: none; /* logo tidak bisa diklik */
+}
+
+.navbar-title {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 25px;
+}
+
+.navbar-title:hover {
+  text-decoration: underline;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.dashboard-btn {
+  background: white;
+  color: #0b7b2e;
+  padding: 6px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.dashboard-btn:hover {
+  background: #e6ffe9;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  text-align: center;
+  color: white;
+  padding: 20px 0;
+}
+
+/* SEARCH BAR */
+.search-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 10px auto 20px auto;
+  text-align: center;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+#searchInput:focus {
+  border-color: #0099ff;
+  box-shadow: 0 0 5px rgba(0, 153, 255, 0.3);
+}
+
+/* ===== TABLE ===== */
+.table-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto;
+  background: white;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+thead {
+  background-color: #0b7b2e;
+  color: white;
+}
+
+th, td {
+  text-align: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody tr:hover {
+  background-color: #f1f5ff;
+}
+
+/* ===== BUTTONS ===== */
+.btn-preview, .btn-download {
+  display: inline-block;
+  margin: 2px 3px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+
+.btn-preview {
+  background-color: #e7f0ff;
+  color: #0d6efd;
+}
+
+.btn-preview:hover {
+  background-color: #d0e3ff;
+}
+
+.btn-download {
+  background-color: #d1f8e5;
+  color: #059669;
+}
+
+.btn-download:hover {
+  background-color: #b8f1d7;
+}
+
+/* ===== LOADER ===== */
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #0b7b2e;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 50px auto;
+  display: block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===== MODAL ===== */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.65);
+  display: none; /* ⬅️ default disembunyikan */
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal.show {
+  display: flex; /* ⬅️ tampilkan saat aktif */
+}
+
+
+.modal-content {
+  position: relative;
+  width: 85%;
+  height: 85%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#pdfFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  background: #e60000;
+}

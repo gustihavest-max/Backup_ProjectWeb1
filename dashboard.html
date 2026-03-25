@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard BRMP Perkebunan</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- CSS -->
+  <link rel="stylesheet" href="dashboard-style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-brand" target="_blank">
+      <img src="img/Logo-Kementan.png" alt="Logo Kementan">
+      BRMP PERKEBUNAN
+    </a>
+
+    <nav class="navbar-nav">
+      <div class="user-dropdown">
+        <span id="userDisplay" class="nav-link"></span>
+        <div class="dropdown-menu">
+          <a href="profil.html" class="dropdown-item">
+            <i class="fa-solid fa-user"></i> Profil
+          </a>
+          <a href="#" id="logoutBtn" class="dropdown-item">
+            <i class="fa-solid fa-right-from-bracket"></i> Keluar
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Konten Dashboard -->
+  <main class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Selamat Datang di E-Perjadin BRMP Perkebunan!👋</h1>
+    </div>
+
+    <div class="dashboard-cards">
+      <!-- Card 1: E Perjadin -->
+      <div class="card">
+        <h3><i class="fa-solid fa-plane-departure"></i> Ajukan E-Perjadin</h3>
+        <p>Ajukan permohonan perjalanan dinas dan surat tugas.</p>
+        <a href="e-perjadin.html" class="card-link">Lihat Detail</a>
+      </div>
+      <!-- Card 2: Riwayat -->
+      <div class="card">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Riwayat E-Perjadin</h3>
+        <p>Lihat semua riwayat perjalanan dinas dan tugas luar Anda.</p>
+        <a href="riwayat_perjadin.html" class="card-link">Lihat Detail</a>
+      </div>
+      <!-- Card 3: Laporan Perjadin -->
+      <div class="card">
+        <h3><i class="fa-solid fa-file-text"></i> Laporan Perjadin</h3>
+        <p>Upload Laporan Perjadin Anda (SPPD, LPD, STPD, Permohonan, Undangan, Kwitansi)</p>
+        <a href="laporan_perjadin.html" class="card-link">Lihat Detail</a>
+      </div>
+      <!-- Card 4: Cetak -->
+      <div class="card">
+        <h3><i class="fa-solid fa-print"></i> Cetak E-Perjadin</h3>
+        <p>Cetak E-Perjadin Anda dengan format MS.Excel</p>
+        <a href="print_excel.html" class="card-link">Lihat Detail</a>
+      </div>
+      <!-- Card 5: Anggaran -->
+      <div class="card">
+        <h3><i class="fa-solid fa-coins"></i> Anggaran Dinas Luar</h3>
+        <p>Lihat Anggaran Dinas Luar </p>
+        <a href="anggaran_kegiatan.html" class="card-link">Lihat Detail</a>
+      </div>
+      <!-- Card 6: Verifikator -->
+      <div class="card">
+        <h3><i class="fa-solid fa-circle-check"></i> Verifikator</h3>
+        <p>Menu untuk verifikator <br> (Coming Soon)</p>
+        <a href="profilpdf.html" class="card-link">Lihat Detail</a>
+      </div>
+    </div>
+  </main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>
+    © 2025 BRMP Perkebunan — All Rights Reserved<br>
+    <span>Created by <strong>@gustihavest</strong></span>
+  </p>
+</footer>
+
+  <!-- Script untuk user login/logout -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = localStorage.getItem('loggedInUser');
+      if (!user) window.location.href = 'index.html';
+      const userDisplay = document.getElementById('userDisplay');
+      userDisplay.innerHTML = `<i class="fa-solid fa-circle-user"></i> ${user}`;
+      userDisplay.title = "Klik untuk pilihan profil/keluar";
+
+      document.getElementById('logoutBtn').addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('loggedInUser');
+        window.location.href = 'index.html';
+      });
+
+      userDisplay.addEventListener('click', () => {
+        document.querySelector('.dropdown-menu').classList.toggle('show');
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Informasi Pertanian</title>
+  <!-- Tautan ke file CSS yang terpisah -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* tambahan styling untuk ikon mata */
+    .input-field {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+    }
+    /* styling captcha */
+    .captcha-container {
+      margin-top: 15px;
+      text-align: center;
+    }
+    #captchaCanvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin: 5px auto;
+    }
+    .captcha-input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    .message-box.success {color: green;}
+    .message-box.error {color: red;}
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <img src="img/Logo-Kementan.png" alt="Logo Kementan" class="logo">
+      <div class="card-header">
+        <h2>Login Pegawai</h2>
+        <p>Selamat datang di BRMP Perkebunan! Silakan login email Pertanian Anda.</p>
+      </div>
+      <form class="login-form">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <div class="input-field">
+            <i class="fas fa-user"></i>
+            <input type="text" id="email" placeholder="Masukkan email pertanian Anda" required>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <div class="input-field">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" placeholder="Masukkan password Anda" required>
+            <!-- ikon mata -->
+            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+          </div>
+        </div>
+
+        <!-- captcha manual -->
+        <div class="captcha-container">
+          <canvas id="captchaCanvas" width="150" height="50"></canvas>
+          <input type="text" id="captchaInput" class="captcha-input" placeholder="Masukkan kode di atas" required>
+          <button type="button" onclick="generateCaptcha()">🔄 Ganti Captcha</button>
+        </div>
+
+        <div class="form-options">
+          <div class="remember-me">
+            <input type="checkbox" id="remember">
+            <label for="remember">Ingat Saya</label>
+          </div>
+          <a href="#" class="forgot-password">Lupa Password?</a>
+        </div>
+        <button type="submit" class="login-button" id="loginButton">Login</button>
+      </form>
+      <div id="message-box" class="message-box"></div>
+      <div class="social-login">
+      </div>
+      <div class="register-link">
+        Belum punya akun? <a href="register.html">Daftar Sekarang</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+  const form = document.querySelector('.login-form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const messageBox = document.getElementById('message-box');
+  const loginButton = document.getElementById('loginButton');
+  const captchaInput = document.getElementById('captchaInput');
+
+  // captcha canvas
+  let captchaCode = '';
+  const canvas = document.getElementById('captchaCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function generateCaptcha() {
+    captchaCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '30px Arial';
+    ctx.fillStyle = '#333';
+    ctx.fillText(captchaCode, 20, 35);
+  }
+  generateCaptcha();
+
+  function showMessage(message, type) {
+    messageBox.textContent = message;
+    messageBox.className = `message-box ${type}`;
+    messageBox.style.display = 'block';
+  }
+
+  form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // cek captcha dulu
+  if (captchaInput.value.trim().toUpperCase() !== captchaCode) {
+    showMessage('Captcha salah. Silakan coba lagi.', 'error');
+    generateCaptcha();
+    captchaInput.value = '';
+    return;
+  }
+
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  // tambahkan spinner di tombol login
+  loginButton.innerHTML = '<span class="spinner"></span> Memproses...';
+  loginButton.disabled = true;
+  messageBox.style.display = 'none';
+
+  try {
+    const response = await fetch('/.netlify/functions/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      localStorage.setItem('loggedInUser', data.email);
+      showMessage('Login berhasil! Anda akan diarahkan.', 'success');
+      window.location.href = '/dashboard.html';
+    } else {
+      showMessage('Login gagal: ' + (data.message || 'Email atau password salah.'), 'error');
+    }
+  } catch (error) {
+    showMessage('Terjadi kesalahan. Coba lagi nanti.', 'error');
+    console.error('Error:', error);
+  } finally {
+    loginButton.innerHTML = 'Login'; // balikkan tombol
+    loginButton.disabled = false;
+    captchaInput.value = '';
+    generateCaptcha();
+  }
+});
+
+
+  // toggle password visibility
+  const togglePassword = document.getElementById('togglePassword');
+  togglePassword.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    togglePassword.classList.toggle('fa-eye');
+    togglePassword.classList.toggle('fa-eye-slash');
+  });
+</script>
+
+</body>
+</html>

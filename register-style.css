@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #4CAF50; /* hijau utama untuk daftar */
+  --secondary-color: #388E3C;
+  --blue-color: #2196F3; /* biru untuk tombol login */
+  --blue-hover: #1976D2;
+  --text-color: #333;
+  --light-text-color: #666;
+  --background-color: #f0f2f5;
+  --card-background: #fff;
+  --border-color: #ddd;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --focus-color: #81C784;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-image: url('img/petani-milenial.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.register-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px var(--shadow-color);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px var(--shadow-color);
+}
+
+.card-header {
+  margin-bottom: 30px;
+}
+
+.card-header h2 {
+  font-size: 2em;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.card-header p {
+  font-size: 1em;
+  color: var(--light-text-color);
+}
+
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.input-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 15px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.input-field input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1em;
+  color: var(--text-color);
+  padding: 5px 0;
+}
+
+.input-field input::placeholder {
+  color: #bbb;
+}
+
+.input-field:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--focus-color);
+  background-color: var(--card-background);
+}
+
+/* Tombol daftar */
+.register-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  position: relative;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+}
+
+.register-button:hover:not(:disabled) {
+  background-color: var(--secondary-color);
+}
+
+.register-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Tombol login biru */
+.signin-button {
+  background-color: var(--blue-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  position: relative;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+}
+
+.signin-button:hover {
+  background-color: var(--blue-hover);
+}
+
+/* Spinner */
+.register-button .spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsif */
+@media (max-width: 500px) {
+  .register-card {
+    padding: 30px 20px;
+    margin: 0 15px;
+  }
+}

@@ -1,0 +1,45 @@
+/* Navbar */
+.navbar img {
+  height: 48px;
+}
+.navbar-title {
+  text-decoration: none;
+}
+.dashboard-btn {
+  text-decoration: none;
+}
+
+/* Tabel hover */
+table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.1); /* biru muda */
+}
+
+/* Export button */
+button.export-btn {
+  background-color:  #0b7b2e;; /* Tailwind blue-700 */
+  color: white;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 5px;
+  transition: 0.2s;
+}
+button.export-btn:hover {
+  background-color: #1E40AF; /* Tailwind blue-800 */
+}
+
+/* Loader */
+.loader {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Page Header */
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+.page-header p {
+  font-size: 1rem;
+  color: white;
+}

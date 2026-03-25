@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Dokumen Perjadin</title>
+  <link rel="stylesheet" href="upload_laporan.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="navbar-left">
+    <img src="img/Logo-Kementan.png" alt="Logo">
+    <span class="navbar-title">BRMP PERKEBUNAN</span>
+  </div>
+  <div class="navbar-right">
+    <a href="laporan_perjadin.html" class="dashboard-btn">⬅ Kembali</a>
+  </div>
+</header>
+
+<div class="page-header">
+  <h2>📤 Upload Dokumen Perjalanan Dinas</h2>
+  <div id="statusBox" style="padding:10px; border:1px solid #333; display:inline-block; margin-top:10px;">
+    STATUS VALIDASI: <span id="textStatus" style="font-weight:bold;">Mengecek...</span>
+  </div>
+</div>
+
+<div class="table-wrapper">
+  <form id="formUpload">
+    <label>No. ST</label>
+    <input type="text" id="id_perjadin" readonly>
+
+    <label>Nama Pegawai</label>
+    <textarea id="nama" readonly></textarea>
+
+    <hr>
+
+    <label>Laporan (PDF) <span id="check_laporan"></span></label>
+    <input type="file" name="laporan" accept="application/pdf">
+
+    <label>SPPD (PDF) <span id="check_sppd"></span></label>
+    <input type="file" name="sppd" accept="application/pdf">
+
+    <label>SPJ (PDF) <span id="check_spj"></span></label>
+    <input type="file" name="spj" accept="application/pdf">
+
+    <label>Surat Tugas (PDF) <span id="check_st"></span></label>
+    <input type="file" name="st" accept="application/pdf">
+
+    <button type="submit" id="btnSimpan">💾 Simpan / Update</button>
+  </form>
+</div>
+
+<!-- Popup Notifikasi -->
+<div class="notif-popup" id="notifPopup">
+  <div class="popup-content success">
+    <div class="popup-icon">✅</div>
+    <div class="popup-title">Berhasil!</div>
+    <div class="popup-message" id="popupMessage">Dokumen berhasil diupload.</div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id_perjadin = params.get('id_perjadin');
+const nama = params.get('nama');
+
+document.getElementById('id_perjadin').value = id_perjadin;
+document.getElementById('nama').value = nama ? decodeURIComponent(nama) : '-';
+
+// Validasi URL minimal 10 karakter
+function isValidURL(str) {
+  return str && str.length >= 10;
+}
+
+// Tampilkan popup notifikasi
+function showNotification(message, type = "success") {
+  const popup = document.getElementById("notifPopup");
+  const content = popup.querySelector(".popup-content");
+  const msg = popup.querySelector("#popupMessage");
+  msg.innerText = message;
+
+  // Set class success / error
+  content.className = `popup-content ${type}`;
+
+  popup.classList.add("show");
+
+  // Auto hide & redirect ke laporan_perjadin.html setelah 2 detik
+  setTimeout(() => {
+    popup.classList.remove("show");
+    if(type === "success") {
+      window.location.href = "laporan_perjadin.html";
+    }
+  }, 2000);
+}
+
+// Fetch data dari backend untuk cek kelengkapan dokumen
+async function cekKelengkapan() {
+  try {
+    const res = await fetch(`/.netlify/functions/laporan_perjadin_read`);
+    const data = await res.json();
+
+    if (data.success) {
+      const row = data.rows.find(r => r.id_perjadin == id_perjadin);
+      if (row) {
+        document.getElementById('check_laporan').innerText = isValidURL(row.url_laporan) ? "✅ Terisi" : "❌ Kosong";
+        document.getElementById('check_sppd').innerText    = isValidURL(row.url_sppd)    ? "✅ Terisi" : "❌ Kosong";
+        document.getElementById('check_spj').innerText     = isValidURL(row.url_spj)     ? "✅ Terisi" : "❌ Kosong";
+        document.getElementById('check_st').innerText      = isValidURL(row.url_st)      ? "✅ Terisi" : "❌ Kosong";
+
+        const st = document.getElementById('textStatus');
+        st.innerText = row.status_dokumen.toUpperCase();
+        st.style.color = row.status_dokumen.toLowerCase() === "lengkap" ? "green" : "red";
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+cekKelengkapan();
+
+// Upload file ke Cloudinary
+async function uploadPDF(file) {
+  if (!file) return "";
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", "pdfbun");
+
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/ddbeawzos/auto/upload`, { method: "POST", body: fd });
+    const data = await res.json();
+    return data.secure_url || "";
+  } catch (err) {
+    return "";
+  }
+}
+
+// Submit form
+document.getElementById('formUpload').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnSimpan');
+  btn.disabled = true;
+  btn.textContent = "⏳ Memproses...";
+
+  try {
+    const [uLaporan, uSppd, uSpj, uSt] = await Promise.all([
+      uploadPDF(e.target.laporan.files[0]),
+      uploadPDF(e.target.sppd.files[0]),
+      uploadPDF(e.target.spj.files[0]),
+      uploadPDF(e.target.st.files[0])
+    ]);
+
+    const qs = new URLSearchParams({
+      id_perjadin,
+      nama: document.getElementById('nama').value,
+      url_laporan: uLaporan,
+      url_sppd: uSppd,
+      url_spj: uSpj,
+      url_st: uSt
+    });
+
+    const res = await fetch(`/.netlify/functions/upload_laporan?${qs.toString()}`, { method: "POST" });
+    const data = await res.json();
+
+    if(data.success){
+      showNotification("Dokumen berhasil diupload!", "success");
+    } else {
+      showNotification("Gagal upload dokumen.", "error");
+    }
+
+    cekKelengkapan();
+    e.target.reset();
+  } catch(err){
+    console.error(err);
+    showNotification("Terjadi kesalahan saat upload.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💾 Simpan / Update";
+  }
+});
+</script>
+</body>
+</html>

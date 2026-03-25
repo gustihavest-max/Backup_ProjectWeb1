@@ -1,0 +1,322 @@
+/* =========================================================
+    GLOBAL SCROLL FIX 
+========================================================= */
+html, body {
+    height: auto !important;
+    overflow-y: auto !important;
+    scroll-behavior: smooth;
+}
+
+/* =========================================================
+    GLOBAL STYLE
+========================================================= */
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+
+    min-height: 100vh;
+    padding-bottom: 50px; 
+
+  background:  url("img/psip-bun.jpeg") center/cover no-repeat fixed;
+  background-size: cover;
+  color: #333;
+}
+
+/* Right-align numeric columns */
+.numeric {
+    text-align: right;
+    font-weight: 500;
+}
+
+/* =========================================================
+    NAVBAR
+========================================================= */
+.navbar {
+    background-color: #0b7b2e;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.navbar-left img {
+    height: 48px;
+}
+
+.navbar-title {
+    color: white;
+    font-weight: 600;
+    font-size: 25px;
+    text-decoration: none;
+}
+
+.navbar-title:hover {
+    text-decoration: underline;
+}
+
+.dashboard-btn {
+    background: white;
+    color: #0b7b2e;
+    padding: 6px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.dashboard-btn:hover {
+    background: #e6ffe9;
+}
+
+/* =========================================================
+    PAGE HEADER
+========================================================= */
+.page-header {
+    text-align: center;
+    color: #0b7b2e;
+    padding: 20px 0;
+}
+
+/* =========================================================
+    TABLE WRAPPER
+========================================================= */
+.table-wrapper {
+    width: 90%; /* MODIFIKASI: Mengubah lebar menjadi 90% */
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* =========================================================
+    FULL BORDER TABLE
+========================================================= */
+table {
+    width: 100%;
+    border-collapse: collapse !important;
+    font-size: 0.95rem;
+    border: 1px solid #444;
+}
+
+thead {
+    background-color: #0b7b2e;
+    color: white;
+}
+
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #444 !important;
+    text-align: center;
+}
+
+/* Hover dengan zoom */
+tbody tr {
+    transition: 0.18s ease;
+}
+
+tbody tr:hover {
+    background-color: #e3f2ff !important;
+    transform: scale(1.008);
+}
+
+/* =========================================================
+    BUTTONS
+========================================================= */
+.primary-btn {
+    background-color: #0d6efd;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.secondary-btn {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #333;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+/* =========================================================
+    FORM FIELDS
+========================================================= */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* =========================================================
+    LOADER & STATUS MESSAGE
+========================================================= */
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #0b7b2e;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#statusMessage {
+    width: 95%;
+    margin: 10px auto;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.hidden { display: none; }
+
+/* =========================================================
+    MODAL
+========================================================= */
+.modal {
+    position: fixed;
+    inset: 0;  /* ADD: shorthand top/left/right/bottom */
+    background-color: rgba(0,0,0,0.45); /* EDIT: lebih soft */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(3px); /* ADD: efek blur modern */
+}
+
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    width: 500px;
+    max-height: 90vh;
+    padding: 25px;
+    border-radius: 15px; /* EDIT: rounded lebih modern */
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15); /* ADD */
+    animation: popup 0.22s ease-out; /* ADD */
+}
+@keyframes popup {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content textarea {
+    width: 100%;
+    padding: 10px 12px;      /* EDIT */
+    border: 1px solid #d1d5db; /* EDIT (mirip Tailwind gray-300) */
+    border-radius: 8px;      /* EDIT */
+    transition: 0.15s ease;  /* ADD: smooth focus */
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+    border-color: #0b7b2e;   /* ADD */
+    box-shadow: 0 0 0 3px rgba(11,123,46,0.25); /* ADD: tailwind-like ring */
+    outline: none;
+}
+.btn-edit {
+    background-color: #ffc107;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 8px;        /* EDIT */
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-edit:hover {
+    background-color: #ffca2c; /* EDIT */
+    transform: translateY(-1px); /* ADD */
+}
+#statusMessage {
+    width: 95%;
+    margin: 10px auto;
+    padding: 14px 18px; /* EDIT */
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+}
+
+.success {
+    background-color: #d1fae5; /* Tailwind green-100 */
+    border: 1px solid #10b981; 
+    color: #065f46;
+}
+
+.error {
+    background-color: #fee2e2; /* Tailwind red-100 */
+    border: 1px solid #ef4444;
+    color: #7f1d1d;
+}

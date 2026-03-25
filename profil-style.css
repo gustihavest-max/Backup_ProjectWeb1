@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #4CAF50;
+  --primary-hover-color: #45a049;
+  --secondary-color: #f1f1f1;
+  --text-color-dark: #333;
+  --text-color-light: #fff;
+  --box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --box-shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.12);
+  --border-radius: 12px;
+}
+
+/* BODY dengan gradient + efek liquid */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+
+  /* gradient background */
+  background: linear-gradient(-45deg,
+    #00ffa3,
+    #00bfff,
+    #228b22,
+    #8A2BE2, /* ungu */
+    #FF69B4, /* pink */
+    #00ffa3);
+  background-size: 400% 400%;
+  animation: gradientMove 25s ease infinite;
+  position: relative;
+
+  /* biarkan halaman bisa scroll */
+  overflow-y: auto;
+}
+
+/* pseudo-element untuk efek blur/liquid */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: inherit;
+  filter: blur(40px) contrast(120%);
+  animation: wave 10s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes gradientMove {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+@keyframes wave {
+  0% {transform: scale(1) rotate(0deg);}
+  50% {transform: scale(1.05) rotate(1deg);}
+  100% {transform: scale(1) rotate(0deg);}
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--primary-color);
+  padding: 8px 40px;
+  color: var(--text-color-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  color: var(--text-color-light);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 25px;
+}
+
+.navbar-brand img {
+  height: 50px;
+  margin-right: 10px;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-right: 55px;
+}
+
+.navbar-nav .nav-link {
+  color: var(--text-color-light);
+  text-decoration: none;
+  font-size: 15px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: var(--primary-hover-color);
+  transform: translateY(-2px);
+}
+
+.navbar-nav .back-btn {
+  background-color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* CARD PROFIL */
+.profile-container {
+  max-width: 750px;
+  width: 100%;
+  margin: 140px auto 40px auto; /* margin top besar supaya tidak ketiban navbar */
+  background: #fff;
+  padding: 40px 20px 30px 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow-medium);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.5s ease-out, box-shadow 0.3s ease;
+}
+
+.profile-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.profile-header {
+  margin-bottom: 30px;
+  position: relative;
+  width: 100%;
+}
+
+/* Foto profil keluar setengah */
+.profile-header img.profile-picture {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--primary-color);
+  position: absolute;
+  top: -60px; /* keluar setengah */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+}
+
+.profile-header h2 {
+  font-size: 28px;
+  color: var(--text-color-dark);
+  font-weight: 600;
+  margin: 70px 0 0 0; /* jarak setelah foto */
+}
+
+.upload-container {
+  display: flex;
+  justify-content: center; /* center horizontal */
+  margin-top: 20px;
+}
+
+.upload-btn {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: background-color 0.3s ease;
+}
+
+.upload-btn:hover {
+  background-color: #45a049;
+}
+
+
+/* GRID DATA PROFIL */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.profile-item {
+  background-color: var(--secondary-color);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow-light);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-item:hover {
+  transform: scale(1.05);
+  box-shadow: var(--box-shadow-medium);
+}
+
+.profile-item h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.profile-item p {
+  margin-top: 8px;
+  font-size: 16px;
+  color: #555;
+}

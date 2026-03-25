@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrasi User</title>
+
+  <!-- Link ke CSS kamu -->
+  <link rel="stylesheet" href="register-style.css">
+
+  <!-- Font Awesome untuk ikon mata -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* tambahan styling kecil untuk ikon mata */
+    .input-field {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <div class="register-card">
+      <div class="card-header">
+        <h2>Form Pendaftaran</h2>
+        <p>Silakan isi data berikut</p>
+      </div>
+
+      <form id="registerForm">
+        <div class="input-group">
+          <label for="nip">NIP</label>
+          <div class="input-field">
+            <input type="text" id="nip" placeholder="NIP (Primary Key)" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="email">Email</label>
+          <div class="input-field">
+            <input type="email" id="email" placeholder="Email" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <div class="input-field">
+            <input type="password" id="password" placeholder="Password" required>
+            <!-- ikon mata -->
+            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="nama">Nama</label>
+          <div class="input-field">
+            <input type="text" id="nama" placeholder="Nama" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="phone">No. HP</label>
+          <div class="input-field">
+            <input type="text" id="phone" placeholder="No. HP" required>
+          </div>
+        </div>
+
+        <!-- Tombol daftar (spinner kamu sudah ada di CSS) -->
+        <button type="submit" class="register-button">Daftar</button>
+        <button type="button" class="signin-button" onclick="window.location.href='index.html'">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const btn = document.querySelector('.register-button');
+
+    // toggle password visibility
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePassword.classList.toggle('fa-eye');
+      togglePassword.classList.toggle('fa-eye-slash');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // tampilkan spinner + disabled
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Diproses…';
+
+      const data = {
+        nip: document.getElementById('nip').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: passwordInput.value,
+        nama: document.getElementById('nama').value.trim(),
+        phone: document.getElementById('phone').value.trim()
+      };
+
+      try {
+        const response = await fetch('/.netlify/functions/registrasi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Registrasi Berhasil',
+            text: result.message || 'Akun Anda sudah tersimpan.',
+            showConfirmButton: false,
+            timer: 2000
+          });
+          form.reset();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Registrasi Gagal',
+            text: result.message || 'Terjadi kesalahan saat menyimpan data.'
+          });
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Kesalahan Jaringan',
+          text: err.message
+        });
+      } finally {
+        // reset tombol
+        btn.disabled = false;
+        btn.innerHTML = 'Daftar';
+      }
+    });
+  </script>
+</body>
+</html>
