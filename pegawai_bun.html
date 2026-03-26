@@ -61,7 +61,9 @@
 
 <script>
 let currentPage = 1;
+let currentSearch = "";
 const limit = 10;
+let delay;
 
 /* ===== LOAD DATA ===== */
 async function loadData(page = 1) {
@@ -77,17 +79,22 @@ async function loadData(page = 1) {
     const res = await fetch('/.netlify/functions/pegawai_bun', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page, limit })
+      body: JSON.stringify({
+        page,
+        limit,
+        search: currentSearch
+      })
     });
 
     const data = await res.json();
     console.log("DATA:", data);
 
     loader.style.display = "none";
-    tableContainer.classList.remove("hidden"); // 🔥 FIX UTAMA
+    tableContainer.classList.remove("hidden");
 
     if (!data.success || data.rows.length === 0) {
       tbody.innerHTML = `<tr><td colspan="5">Tidak ada data</td></tr>`;
+      document.getElementById("pagination").innerHTML = "";
       return;
     }
 
@@ -135,23 +142,14 @@ function renderPagination(current, total) {
   container.innerHTML = html;
 }
 
-/* ===== SEARCH FILTER (CLIENT SIDE) ===== */
-document.getElementById("searchInput").addEventListener("keyup", () => {
-  const keyword = document.getElementById("searchInput").value.toLowerCase();
-  const rows = document.querySelectorAll("#tabelPegawai tr");
+/* ===== SEARCH (SERVER SIDE + DEBOUNCE) ===== */
+document.getElementById("searchInput").addEventListener("keyup", (e) => {
+  clearTimeout(delay);
 
-  rows.forEach(row => {
-    const nip = row.children[1]?.textContent.toLowerCase() || "";
-    const nama = row.children[2]?.textContent.toLowerCase() || "";
-    const jabatan = row.children[3]?.textContent.toLowerCase() || "";
-
-    const cocok =
-      nip.includes(keyword) ||
-      nama.includes(keyword) ||
-      jabatan.includes(keyword);
-
-    row.style.display = cocok ? "" : "none";
-  });
+  delay = setTimeout(() => {
+    currentSearch = e.target.value;
+    loadData(1); // reset ke halaman 1
+  }, 400);
 });
 
 /* ===== INIT ===== */

@@ -10,52 +10,62 @@ exports.handler = async (event) => {
   }
 
   try {
-    let body = {};
-    try {
-      body = JSON.parse(event.body);
-    } catch {}
+    const { page = 1, limit = 10, search = "" } = JSON.parse(event.body || "{}");
 
-    const page = parseInt(body.page) || 1;
-    const limit = parseInt(body.limit) || 10;
     const offset = (page - 1) * limit;
 
-    console.log("PAGE:", page, "LIMIT:", limit, "OFFSET:", offset);
-
-    /* QUERY DATA */
-    const [rows] = await pool.query(`
-      SELECT 
-        nip,
-        nama_pegawai,
-        jabatan,
-        golongan
+    let query = `
+      SELECT nip, nama_pegawai, jabatan, golongan
       FROM pegawai_bun
-      ORDER BY nama_pegawai ASC
-      LIMIT ${limit} OFFSET ${offset}
-    `);
+    `;
 
-    /* TOTAL */
-    const [countResult] = await pool.query(`
-      SELECT COUNT(*) AS total FROM pegawai_bun
-    `);
+    let countQuery = `SELECT COUNT(*) AS total FROM pegawai_bun`;
+
+    let params = [];
+    let countParams = [];
+
+    /* ===== JIKA ADA SEARCH ===== */
+    if (search) {
+      query += `
+        WHERE nip LIKE ? 
+        OR nama_pegawai LIKE ? 
+        OR jabatan LIKE ?
+      `;
+
+      countQuery += `
+        WHERE nip LIKE ? 
+        OR nama_pegawai LIKE ? 
+        OR jabatan LIKE ?
+      `;
+
+      const keyword = `%${search}%`;
+      params.push(keyword, keyword, keyword);
+      countParams.push(keyword, keyword, keyword);
+    }
+
+    query += ` ORDER BY nama_pegawai ASC LIMIT ? OFFSET ?`;
+    params.push(parseInt(limit), parseInt(offset));
+
+    const [rows] = await pool.execute(query, params);
+
+    const [countResult] = await pool.execute(countQuery, countParams);
 
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
-
-    console.log("TOTAL:", total, "ROWS:", rows.length);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
         rows,
-        page,
+        page: parseInt(page),
         totalPages,
         totalData: total
       }),
     };
 
   } catch (err) {
-    console.error('Error get-pegawai:', err);
+    console.error('Error:', err);
 
     return {
       statusCode: 500,
