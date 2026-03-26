@@ -89,7 +89,7 @@ async function loadData(page = 1) {
       <tr>
         <td>${(page - 1) * limit + index + 1}</td>
         <td>${row.nip}</td>
-        <td>${row.nama}</td>
+        <td>${row.nama_pegawai}</td>
         <td>${row.jabatan}</td>
         <td>${row.golongan}</td>
       </tr>
@@ -136,12 +136,12 @@ document.getElementById("searchInput").addEventListener("keyup", () => {
 
   rows.forEach(row => {
     const nip = row.children[1]?.textContent.toLowerCase() || "";
-    const nama = row.children[2]?.textContent.toLowerCase() || "";
+    const nama_pegawai = row.children[2]?.textContent.toLowerCase() || "";
     const jabatan = row.children[3]?.textContent.toLowerCase() || "";
 
     const cocok =
       nip.includes(keyword) ||
-      nama.includes(keyword) ||
+      nama_pegawai.includes(keyword) ||
       jabatan.includes(keyword);
 
     row.style.display = cocok ? "" : "none";
