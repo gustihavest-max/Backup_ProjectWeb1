@@ -71,7 +71,7 @@ async function loadData(page = 1) {
   loader.style.display = "block";
 
   try {
-    const res = await fetch('/.netlify/functions/pegawai', {
+    const res = await fetch('/.netlify/functions/pegawai_bun', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ page, limit })
