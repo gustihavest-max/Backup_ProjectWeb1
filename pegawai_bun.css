@@ -1,0 +1,109 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background: url("img/psip-bun.jpeg") center/cover no-repeat fixed;
+  color: #333;
+}
+
+/* NAVBAR */
+.navbar {
+  background-color: #0b7b2e;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 24px;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-left img {
+  height: 48px;
+}
+
+.navbar-title {
+  color: white;
+  font-size: 25px;
+  text-decoration: none;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.dashboard-btn {
+  background: white;
+  color: #0b7b2e;
+  padding: 6px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* HEADER */
+.page-header {
+  text-align: center;
+  color: white;
+  padding: 20px 0;
+}
+
+/* SEARCH */
+.search-container {
+  max-width: 700px;
+  margin: auto;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* TABLE */
+.table-wrapper {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #0b7b2e;
+  color: white;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+/* LOADER */
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #0b7b2e;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none;
+}
