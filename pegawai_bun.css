@@ -3,7 +3,7 @@ body {
   font-family: "Segoe UI", sans-serif;
   margin: 0;
   min-height: 100vh;
-  background: url("img/psip-bun.jpeg") center/cover no-repeat fixed;
+  background: url("img/bg_perjadin.jpg") center/cover no-repeat fixed;
   color: #333;
 }
 
@@ -114,6 +114,7 @@ tbody tr:hover {
   100% { transform: rotate(360deg); }
 }
 
+/* ===== HIDDEN ===== */
 .hidden {
   display: none;
 }
@@ -132,7 +133,6 @@ tbody tr:hover {
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .pagination button.active {

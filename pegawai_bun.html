@@ -39,7 +39,7 @@
 <div id="loader" class="loader"></div>
 
 <!-- TABLE -->
-<div id="tabelContainer" class="hidden fade-in">
+<div id="tabelContainer" class="hidden">
   <div class="table-wrapper">
     <table>
       <thead>
@@ -65,8 +65,11 @@ const limit = 10;
 
 /* ===== LOAD DATA ===== */
 async function loadData(page = 1) {
+  currentPage = page;
+
   const loader = document.getElementById("loader");
   const tbody = document.getElementById("tabelPegawai");
+  const tableContainer = document.getElementById("tabelContainer");
 
   loader.style.display = "block";
 
@@ -78,7 +81,10 @@ async function loadData(page = 1) {
     });
 
     const data = await res.json();
+    console.log("DATA:", data);
+
     loader.style.display = "none";
+    tableContainer.classList.remove("hidden"); // 🔥 FIX UTAMA
 
     if (!data.success || data.rows.length === 0) {
       tbody.innerHTML = `<tr><td colspan="5">Tidak ada data</td></tr>`;
@@ -98,7 +104,7 @@ async function loadData(page = 1) {
     renderPagination(data.page, data.totalPages);
 
   } catch (err) {
-    console.error(err);
+    console.error("ERROR:", err);
     loader.style.display = "none";
   }
 }
@@ -115,9 +121,9 @@ function renderPagination(current, total) {
 
   for (let i = 1; i <= total; i++) {
     html += `
-      <button onclick="loadData(${i})" 
-      class="${i === current ? 'active' : ''}">
-      ${i}
+      <button onclick="loadData(${i})"
+        class="${i === current ? 'active' : ''}">
+        ${i}
       </button>
     `;
   }
@@ -129,19 +135,19 @@ function renderPagination(current, total) {
   container.innerHTML = html;
 }
 
-/* ===== SEARCH FILTER ===== */
+/* ===== SEARCH FILTER (CLIENT SIDE) ===== */
 document.getElementById("searchInput").addEventListener("keyup", () => {
   const keyword = document.getElementById("searchInput").value.toLowerCase();
   const rows = document.querySelectorAll("#tabelPegawai tr");
 
   rows.forEach(row => {
     const nip = row.children[1]?.textContent.toLowerCase() || "";
-    const nama_pegawai = row.children[2]?.textContent.toLowerCase() || "";
+    const nama = row.children[2]?.textContent.toLowerCase() || "";
     const jabatan = row.children[3]?.textContent.toLowerCase() || "";
 
     const cocok =
       nip.includes(keyword) ||
-      nama_pegawai.includes(keyword) ||
+      nama.includes(keyword) ||
       jabatan.includes(keyword);
 
     row.style.display = cocok ? "" : "none";
@@ -151,6 +157,7 @@ document.getElementById("searchInput").addEventListener("keyup", () => {
 /* ===== INIT ===== */
 document.addEventListener("DOMContentLoaded", () => {
   const user = localStorage.getItem("loggedInUser");
+
   if (!user) {
     window.location.href = "index.html";
     return;
