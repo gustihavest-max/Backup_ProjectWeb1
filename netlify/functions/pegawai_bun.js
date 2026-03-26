@@ -2,7 +2,6 @@ const pool = require('./db');
 
 exports.handler = async (event) => {
 
-  /* ===== VALIDASI METHOD ===== */
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -11,15 +10,19 @@ exports.handler = async (event) => {
   }
 
   try {
+    let body = {};
+    try {
+      body = JSON.parse(event.body);
+    } catch {}
 
-    /* ===== AMBIL PARAMETER ===== */
-    const { page = 1, limit = 10 } = JSON.parse(event.body || "{}");
-
+    const page = parseInt(body.page) || 1;
+    const limit = parseInt(body.limit) || 10;
     const offset = (page - 1) * limit;
 
-    /* ===== QUERY DATA PEGAWAI ===== */
-    const [rows] = await pool.execute(
-      `
+    console.log("PAGE:", page, "LIMIT:", limit, "OFFSET:", offset);
+
+    /* QUERY DATA */
+    const [rows] = await pool.query(`
       SELECT 
         nip,
         nama_pegawai,
@@ -27,26 +30,25 @@ exports.handler = async (event) => {
         golongan
       FROM pegawai_bun
       ORDER BY nama_pegawai ASC
-      LIMIT ? OFFSET ?
-      `,
-      [parseInt(limit), parseInt(offset)]
-    );
+      LIMIT ${limit} OFFSET ${offset}
+    `);
 
-    /* ===== HITUNG TOTAL DATA ===== */
-    const [countResult] = await pool.execute(
-      `SELECT COUNT(*) AS total FROM pegawai_bun`
-    );
+    /* TOTAL */
+    const [countResult] = await pool.query(`
+      SELECT COUNT(*) AS total FROM pegawai_bun
+    `);
 
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
 
-    /* ===== RESPONSE ===== */
+    console.log("TOTAL:", total, "ROWS:", rows.length);
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
         rows,
-        page: parseInt(page),
+        page,
         totalPages,
         totalData: total
       }),
