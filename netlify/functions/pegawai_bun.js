@@ -24,7 +24,7 @@ exports.handler = async (event) => {
     let params = [];
     let countParams = [];
 
-    /* ===== JIKA ADA SEARCH ===== */
+    /* ===== SEARCH ===== */
     if (search) {
       query += `
         WHERE nip LIKE ? 
@@ -43,8 +43,8 @@ exports.handler = async (event) => {
       countParams.push(keyword, keyword, keyword);
     }
 
-    query += ` ORDER BY nama_pegawai ASC LIMIT ? OFFSET ?`;
-    params.push(parseInt(limit), parseInt(offset));
+    /* ❗ FIX DISINI */
+    query += ` ORDER BY nama_pegawai ASC LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
 
     const [rows] = await pool.execute(query, params);
 
@@ -52,6 +52,8 @@ exports.handler = async (event) => {
 
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
+
+    console.log("TOTAL:", total, "ROWS:", rows.length);
 
     return {
       statusCode: 200,
