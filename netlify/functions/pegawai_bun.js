@@ -26,7 +26,7 @@ exports.handler = async (event) => {
         jabatan,
         golongan
       FROM pegawai_bun
-      ORDER BY nama ASC
+      ORDER BY nama_pegawai ASC
       LIMIT ? OFFSET ?
       `,
       [parseInt(limit), parseInt(offset)]
