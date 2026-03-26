@@ -7,19 +7,6 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="pegawai_bun.css">
-
-  <style>
-    .table-wrapper {
-      width: 90% !important;
-      margin: auto;
-    }
-
-    table tbody tr:hover {
-      background: #e3f2ff !important;
-      transform: scale(1.01);
-      transition: 0.15s ease;
-    }
-  </style>
 </head>
 
 <body>
@@ -48,8 +35,10 @@
   <input type="text" id="searchInput" placeholder="🔍 Cari NIP / Nama / Jabatan..." />
 </div>
 
+<!-- LOADER -->
 <div id="loader" class="loader"></div>
 
+<!-- TABLE -->
 <div id="tabelContainer" class="hidden fade-in">
   <div class="table-wrapper">
     <table>
@@ -65,42 +54,40 @@
       <tbody id="tabelPegawai"></tbody>
     </table>
   </div>
+
+  <!-- PAGINATION -->
+  <div id="pagination" class="pagination"></div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const user = localStorage.getItem("loggedInUser");
-  if (!user) {
-    alert("Silakan login terlebih dahulu.");
-    window.location.href = "index.html";
-    return;
-  }
+let currentPage = 1;
+const limit = 10;
 
-  document.getElementById("userDisplay").textContent = `👤 ${user}`;
-
+/* ===== LOAD DATA ===== */
+async function loadData(page = 1) {
   const loader = document.getElementById("loader");
-  const tableContainer = document.getElementById("tabelContainer");
   const tbody = document.getElementById("tabelPegawai");
 
+  loader.style.display = "block";
+
   try {
-    // 🔥 sementara dummy data (nanti ganti backend)
-    const data = [
-      { nip: "198206282006042001", nama: "Nurya Yuniyati", jabatan: "Analis Keuangan", golongan: "III/c" },
-      { nip: "198507152010012002", nama: "Budi Santoso", jabatan: "Staff Administrasi", golongan: "III/b" },
-      { nip: "199001122015031001", nama: "Siti Aminah", jabatan: "Pengelola Data", golongan: "III/a" }
-    ];
+    const res = await fetch('/.netlify/functions/pegawai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page, limit })
+    });
 
+    const data = await res.json();
     loader.style.display = "none";
-    tableContainer.classList.remove("hidden");
 
-    if (data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5">Belum ada data pegawai.</td></tr>`;
+    if (!data.success || data.rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5">Tidak ada data</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = data.map((row, index) => `
+    tbody.innerHTML = data.rows.map((row, index) => `
       <tr>
-        <td>${index + 1}</td>
+        <td>${(page - 1) * limit + index + 1}</td>
         <td>${row.nip}</td>
         <td>${row.nama}</td>
         <td>${row.jabatan}</td>
@@ -108,18 +95,43 @@ document.addEventListener("DOMContentLoaded", async () => {
       </tr>
     `).join("");
 
+    renderPagination(data.page, data.totalPages);
+
   } catch (err) {
     console.error(err);
     loader.style.display = "none";
-    tableContainer.classList.remove("hidden");
-    tbody.innerHTML = `<tr><td colspan="5">Error ambil data</td></tr>`;
   }
-});
+}
 
-/* SEARCH FILTER */
+/* ===== PAGINATION ===== */
+function renderPagination(current, total) {
+  const container = document.getElementById("pagination");
+
+  let html = "";
+
+  if (current > 1) {
+    html += `<button onclick="loadData(${current - 1})">⬅</button>`;
+  }
+
+  for (let i = 1; i <= total; i++) {
+    html += `
+      <button onclick="loadData(${i})" 
+      class="${i === current ? 'active' : ''}">
+      ${i}
+      </button>
+    `;
+  }
+
+  if (current < total) {
+    html += `<button onclick="loadData(${current + 1})">➡</button>`;
+  }
+
+  container.innerHTML = html;
+}
+
+/* ===== SEARCH FILTER ===== */
 document.getElementById("searchInput").addEventListener("keyup", () => {
   const keyword = document.getElementById("searchInput").value.toLowerCase();
-
   const rows = document.querySelectorAll("#tabelPegawai tr");
 
   rows.forEach(row => {
@@ -134,6 +146,19 @@ document.getElementById("searchInput").addEventListener("keyup", () => {
 
     row.style.display = cocok ? "" : "none";
   });
+});
+
+/* ===== INIT ===== */
+document.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("loggedInUser");
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("userDisplay").textContent = `👤 ${user}`;
+
+  loadData(1);
 });
 </script>
 

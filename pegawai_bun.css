@@ -1,3 +1,4 @@
+/* ===== GLOBAL ===== */
 body {
   font-family: "Segoe UI", sans-serif;
   margin: 0;
@@ -6,7 +7,7 @@ body {
   color: #333;
 }
 
-/* NAVBAR */
+/* ===== NAVBAR ===== */
 .navbar {
   background-color: #0b7b2e;
   color: white;
@@ -46,14 +47,14 @@ body {
   font-weight: 600;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 .page-header {
   text-align: center;
   color: white;
   padding: 20px 0;
 }
 
-/* SEARCH */
+/* ===== SEARCH ===== */
 .search-container {
   max-width: 700px;
   margin: auto;
@@ -63,10 +64,13 @@ body {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
+  border: 1px solid #ccc;
 }
 
-/* TABLE */
+/* ===== TABLE ===== */
 .table-wrapper {
+  width: 90%;
+  margin: auto;
   background: white;
   border-radius: 10px;
   padding: 15px;
@@ -89,7 +93,13 @@ th, td {
   border-bottom: 1px solid #ddd;
 }
 
-/* LOADER */
+tbody tr:hover {
+  background: #e3f2ff;
+  transform: scale(1.01);
+  transition: 0.15s ease;
+}
+
+/* ===== LOADER ===== */
 .loader {
   border: 5px solid #f3f3f3;
   border-top: 5px solid #0b7b2e;
@@ -106,4 +116,29 @@ th, td {
 
 .hidden {
   display: none;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 4px;
+  padding: 6px 12px;
+  border: none;
+  background: #0b7b2e;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination button.active {
+  background: #0099ff;
+}
+
+.pagination button:hover {
+  background: #0077cc;
 }
