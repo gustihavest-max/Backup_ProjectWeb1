@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Statistik Anggaran</title>
+
+  <link rel="stylesheet" href="statistik_anggaran.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>📊 Dashboard Anggaran</h1>
+
+  <!-- PROGRESS BAR -->
+  <div class="card">
+    <h3>Penggunaan Anggaran</h3>
+    <div class="progress-box">
+      <div id="progressBar"></div>
+    </div>
+    <p id="persenText">0%</p>
+  </div>
+
+  <!-- INFO -->
+  <div class="grid">
+    <div class="card">
+      <h4>Total Pagu</h4>
+      <p id="pagu">0</p>
+    </div>
+
+    <div class="card">
+      <h4>Terpakai</h4>
+      <p id="digunakan">0</p>
+    </div>
+
+    <div class="card">
+      <h4>Sisa</h4>
+      <p id="sisa">0</p>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card chart-card">
+    <canvas id="chart"></canvas>
+  </div>
+</div>
+
+<script>
+let chart;
+
+async function loadStatistik() {
+    try {
+        const res = await fetch("/.netlify/functions/statistik_anggaran");
+        const result = await res.json();
+
+        if (!result.success) return;
+
+        const d = result.data;
+
+        // Update angka
+        document.getElementById("pagu").textContent = d.totalPagu.toLocaleString("id-ID");
+        document.getElementById("digunakan").textContent = d.totalDigunakan.toLocaleString("id-ID");
+        document.getElementById("sisa").textContent = d.totalSisa.toLocaleString("id-ID");
+
+        // Progress bar
+        const persen = d.persen;
+        const bar = document.getElementById("progressBar");
+
+        bar.style.width = persen + "%";
+        document.getElementById("persenText").textContent = persen + "%";
+
+        // warna dinamis
+        if (persen < 50) bar.style.background = "#22c55e";
+        else if (persen < 80) bar.style.background = "#facc15";
+        else bar.style.background = "#ef4444";
+
+        // Chart
+        if (chart) chart.destroy();
+
+        const ctx = document.getElementById("chart");
+
+        chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Digunakan", "Sisa"],
+                datasets: [{
+                    data: [d.totalDigunakan, d.totalSisa],
+                    backgroundColor: ["#ef4444", "#22c55e"]
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { position: "bottom" }
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+// 🔥 AUTO REFRESH (LIVE)
+setInterval(loadStatistik, 5000);
+
+// first load
+loadStatistik();
+</script>
+
+</body>
+</html>
