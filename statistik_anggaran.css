@@ -1,0 +1,66 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  background: #f5f7fb;
+}
+
+.container {
+  width: 95%;
+  margin: auto;
+  text-align: center;
+}
+
+h1 {
+  margin: 20px 0;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 20px;
+  margin: 15px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* GRID */
+.grid {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.grid .card {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* PROGRESS */
+.progress-box {
+  width: 100%;
+  height: 20px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  transition: width 0.8s ease;
+}
+
+/* TEXT */
+#persenText {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* CHART */
+.chart-card {
+  max-width: 400px;
+}
