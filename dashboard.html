@@ -13,96 +13,161 @@
   <link rel="stylesheet" href="dashboard-style.css">
 </head>
 <body>
-  <!-- Navbar -->
-  <header class="navbar">
-    <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-brand" target="_blank">
-      <img src="img/Logo-Kementan.png" alt="Logo Kementan">
-      BRMP PERKEBUNAN
-    </a>
 
-    <nav class="navbar-nav">
-      <div class="user-dropdown">
-        <span id="userDisplay" class="nav-link"></span>
-        <div class="dropdown-menu">
-          <a href="profil.html" class="dropdown-item">
-            <i class="fa-solid fa-user"></i> Profil
-          </a>
-          <a href="#" id="logoutBtn" class="dropdown-item">
-            <i class="fa-solid fa-right-from-bracket"></i> Keluar
-          </a>
-        </div>
-      </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="https://perkebunan.brmp.pertanian.go.id/" class="sidebar-brand" target="_blank">
+        <img src="img/Logo-Kementan.png" alt="Logo Kementan">
+        <span class="brand-text">BRMP<br>PERKEBUNAN</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-menu">
+      <a href="e-perjadin.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-plane-departure"></i></div>
+        <span class="menu-text">Ajukan E-Perjadin</span>
+      </a>
+      <a href="riwayat_perjadin.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <span class="menu-text">Riwayat E-Perjadin</span>
+      </a>
+      <a href="laporan_perjadin.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-file-text"></i></div>
+        <span class="menu-text">Laporan Perjadin</span>
+      </a>
+      <a href="print_excel.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-print"></i></div>
+        <span class="menu-text">Cetak E-Perjadin</span>
+      </a>
+      <a href="anggaran_kegiatan.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-coins"></i></div>
+        <span class="menu-text">Anggaran Dinas Luar</span>
+      </a>
+      <a href="profilpdf.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <span class="menu-text">Verifikator</span>
+        <span class="menu-badge">Soon</span>
+      </a>
+      <a href="pegawai_bun.html" class="menu-item">
+        <div class="menu-icon"><i class="fa-solid fa-user"></i></div>
+        <span class="menu-text">Pegawai Bun</span>
+      </a>
     </nav>
-  </header>
 
-  <!-- Konten Dashboard -->
-  <main class="dashboard-container">
-    <div class="dashboard-header">
-      <h1>Selamat Datang di E-Perjadin BRMP Perkebunan!👋</h1>
-    </div>
-
-    <div class="dashboard-cards">
-      <!-- Card 1: E Perjadin -->
-      <div class="card">
-        <h3><i class="fa-solid fa-plane-departure"></i> Ajukan E-Perjadin</h3>
-        <p>Ajukan permohonan perjalanan dinas dan surat tugas.</p>
-        <a href="e-perjadin.html" class="card-link">Lihat Detail</a>
+    <!-- User section at bottom -->
+    <div class="sidebar-footer">
+      <div class="user-section" id="userSection">
+        <div class="user-avatar"><i class="fa-solid fa-circle-user"></i></div>
+        <span class="user-name" id="userDisplay"></span>
       </div>
-      <!-- Card 2: Riwayat -->
-      <div class="card">
-        <h3><i class="fa-solid fa-clock-rotate-left"></i> Riwayat E-Perjadin</h3>
-        <p>Lihat semua riwayat perjalanan dinas dan tugas luar Anda.</p>
-        <a href="riwayat_perjadin.html" class="card-link">Lihat Detail</a>
-      </div>
-      <!-- Card 3: Laporan Perjadin -->
-      <div class="card">
-        <h3><i class="fa-solid fa-file-text"></i> Laporan Perjadin</h3>
-        <p>Upload Laporan Perjadin Anda (SPPD, LPD, STPD, Permohonan, Undangan, Kwitansi)</p>
-        <a href="laporan_perjadin.html" class="card-link">Lihat Detail</a>
-      </div>
-      <!-- Card 4: Cetak -->
-      <div class="card">
-        <h3><i class="fa-solid fa-print"></i> Cetak E-Perjadin</h3>
-        <p>Cetak E-Perjadin Anda dengan format MS.Excel</p>
-        <a href="print_excel.html" class="card-link">Lihat Detail</a>
-      </div>
-      <!-- Card 5: Anggaran -->
-      <div class="card">
-        <h3><i class="fa-solid fa-coins"></i> Anggaran Dinas Luar</h3>
-        <p>Lihat Anggaran Dinas Luar </p>
-        <a href="anggaran_kegiatan.html" class="card-link">Lihat Detail</a>
-      </div>
-      <!-- Card 6: Verifikator -->
-      <div class="card">
-        <h3><i class="fa-solid fa-circle-check"></i> Verifikator</h3>
-        <p>Menu untuk verifikator <br> (Coming Soon)</p>
-        <a href="profilpdf.html" class="card-link">Lihat Detail</a>
-      </div>
-      <!-- Card 7: Pegawai Bun -->
-      <div class="card">
-        <h3><i class="fa-solid fa-user"></i> Pegawai Bun</h3>
-        <p>Seluruh Pegawai BRMP Perkebunan <br> (PNS/PPPK/PPPKPW)</p>
-        <a href="pegawai_bun.html" class="card-link">Lihat Detail</a>
+      <div class="user-actions" id="userActions">
+        <a href="profil.html" class="user-action-item">
+          <i class="fa-solid fa-user"></i> Profil
+        </a>
+        <a href="#" id="logoutBtn" class="user-action-item logout">
+          <i class="fa-solid fa-right-from-bracket"></i> Keluar
+        </a>
       </div>
     </div>
+  </aside>
+
+  <!-- MOBILE TOGGLE -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="content-header">
+      <h1>Selamat Datang di E-Perjadin 👋</h1>
+      <p>BRMP Perkebunan — Sistem Elektronik Perjalanan Dinas</p>
+    </div>
+
+    <div class="content-cards">
+      <div class="info-card">
+        <div class="info-card-icon"><i class="fa-solid fa-plane-departure"></i></div>
+        <div class="info-card-body">
+          <h3>Ajukan E-Perjadin</h3>
+          <p>Ajukan permohonan perjalanan dinas dan surat tugas.</p>
+        </div>
+        <a href="e-perjadin.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div class="info-card-body">
+          <h3>Riwayat E-Perjadin</h3>
+          <p>Lihat semua riwayat perjalanan dinas dan tugas luar Anda.</p>
+        </div>
+        <a href="riwayat_perjadin.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon"><i class="fa-solid fa-file-text"></i></div>
+        <div class="info-card-body">
+          <h3>Laporan Perjadin</h3>
+          <p>Upload Laporan Perjadin Anda (SPPD, LPD, STPD, Permohonan, Undangan, Kwitansi)</p>
+        </div>
+        <a href="laporan_perjadin.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon"><i class="fa-solid fa-print"></i></div>
+        <div class="info-card-body">
+          <h3>Cetak E-Perjadin</h3>
+          <p>Cetak E-Perjadin Anda dengan format MS.Excel</p>
+        </div>
+        <a href="print_excel.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon"><i class="fa-solid fa-coins"></i></div>
+        <div class="info-card-body">
+          <h3>Anggaran Dinas Luar</h3>
+          <p>Lihat Anggaran Dinas Luar</p>
+        </div>
+        <a href="anggaran_kegiatan.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon coming-soon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="info-card-body">
+          <h3>Verifikator</h3>
+          <p>Menu untuk verifikator (Coming Soon)</p>
+        </div>
+        <a href="profilpdf.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon"><i class="fa-solid fa-user"></i></div>
+        <div class="info-card-body">
+          <h3>Pegawai Bun</h3>
+          <p>Seluruh Pegawai BRMP Perkebunan (PNS/PPPK/PPPKPW)</p>
+        </div>
+        <a href="pegawai_bun.html" class="info-card-link">Lihat Detail <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>
+        © 2025 BRMP Perkebunan — All Rights Reserved<br>
+        <span>Created by <strong>@gustihavest</strong></span>
+      </p>
+    </footer>
   </main>
 
-<!-- FOOTER -->
-<footer class="footer">
-  <p>
-    © 2025 BRMP Perkebunan — All Rights Reserved<br>
-    <span>Created by <strong>@gustihavest</strong></span>
-  </p>
-</footer>
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- Script untuk user login/logout -->
+  <!-- Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const user = localStorage.getItem('loggedInUser');
       if (!user) window.location.href = 'index.html';
       const userDisplay = document.getElementById('userDisplay');
-      userDisplay.innerHTML = `<i class="fa-solid fa-circle-user"></i> ${user}`;
-      userDisplay.title = "Klik untuk pilihan profil/keluar";
+      userDisplay.textContent = user;
 
       document.getElementById('logoutBtn').addEventListener('click', e => {
         e.preventDefault();
@@ -110,8 +175,21 @@
         window.location.href = 'index.html';
       });
 
-      userDisplay.addEventListener('click', () => {
-        document.querySelector('.dropdown-menu').classList.toggle('show');
+      // Toggle user actions
+      document.getElementById('userSection').addEventListener('click', () => {
+        document.getElementById('userActions').classList.toggle('show');
+      });
+
+      // Mobile sidebar toggle
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      document.getElementById('sidebarToggle').addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+      });
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
       });
     });
   </script>
