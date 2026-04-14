@@ -1,10 +1,11 @@
 const pool = require('./db');
 
 exports.handler = async (event) => {
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ success: false, message: 'Gunakan POST' })
+      body: JSON.stringify({ message: 'Gunakan POST.' })
     };
   }
 
@@ -20,18 +21,13 @@ exports.handler = async (event) => {
       FROM pegawai_bun
     `;
 
-    let countQuery = `
-      SELECT COUNT(*) AS total
-      FROM pegawai_bun
-    `;
+    let countQuery = `SELECT COUNT(*) AS total FROM pegawai_bun`;
 
     let params = [];
     let countParams = [];
 
-    /* ===============================
-       🔍 SEARCH
-    =============================== */
-    if (search && search.trim() !== "") {
+    /* 🔍 SEARCH */
+    if (search) {
       query += `
         WHERE nip LIKE ?
         OR nama_pegawai LIKE ?
@@ -49,13 +45,8 @@ exports.handler = async (event) => {
       countParams.push(keyword, keyword, keyword);
     }
 
-    /* ===============================
-       📊 PAGINATION (FIX UTAMA DISINI)
-    =============================== */
-    query += ` ORDER BY nama_pegawai ASC LIMIT ? OFFSET ?`;
-
-    // ✅ WAJIB TAMBAH PARAM INI
-    params.push(limitNum, offset);
+    /* 🔥 PAKAI STRING LANGSUNG (AMAN & SIMPLE) */
+    query += ` ORDER BY nama_pegawai ASC LIMIT ${limitNum} OFFSET ${offset}`;
 
     const [rows] = await pool.execute(query, params);
     const [countResult] = await pool.execute(countQuery, countParams);
@@ -71,7 +62,7 @@ exports.handler = async (event) => {
         page: pageNum,
         totalPages,
         totalData: total
-      })
+      }),
     };
 
   } catch (err) {
@@ -81,9 +72,9 @@ exports.handler = async (event) => {
       statusCode: 500,
       body: JSON.stringify({
         success: false,
-        message: 'Server error',
+        message: 'Kesalahan server.',
         error: err.message
-      })
+      }),
     };
   }
 };
