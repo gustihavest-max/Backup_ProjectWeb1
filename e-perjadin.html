@@ -2,609 +2,208 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ajukan E-Perjadin</title>
 
+  <!-- EXISTING -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css"/>
+  <link rel="stylesheet" href="e-perjadin.css"/>
 
-  <link rel="stylesheet" href="e-perjadin.css" />
+  <!-- 🔥 SELECT2 -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
 
+<body>
 
-<div id="notifBanner" class="notif-popup">
-  <div id="notifContent" class="popup-content">
-    <div id="notifIcon" class="popup-icon">✔️</div>
-    <div id="notifTitle" class="popup-title">Sukses</div>
-    <p id="notifMessage" class="popup-message"></p>
-  </div>
-</div>
+<main class="form-container">
+  <h2>Ajukan E-Perjadin</h2>
 
-    
-  <header class="navbar">
-    <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-brand" target="_blank">
-      <img src="img/Logo-Kementan.png" alt="Logo" />
-      BRMP PERKEBUNAN
-    </a>
+  <form id="perjadinForm">
 
-    <nav class="navbar-nav">
-      <span id="userDisplay"></span>
-      <a href="dashboard.html" class="dashboard-btn">⬅️ Dashboard</a>
-    </nav>
-  </header>
+    <h3>Data Pegawai</h3>
 
-  <main class="form-container">
-    <h2 class="form-title">Ajukan E-Perjadin 📝</h2>
+    <div id="pegawaiWrapper">
+      <div class="pegawai-group">
 
-    <form id="perjadinForm">
-
-      <h3>Data Pegawai</h3>
-
-      <div id="pegawaiWrapper">
-        <div class="pegawai-group">
-          <label>Nama Pegawai</label>
-          <input type="text" class="nama-input-field" name="nama[]" placeholder="Contoh: Budianto, S.T" required />
-
-          <label>Golongan</label>
-          <select class="golongan-select-field" name="golongan[]" required>
-            <option value="">-- Pilih Golongan --</option>
-            <option value="Golongan IIa">IIa / 2a</option>
-            <option value="Golongan IIb">IIb / 2b</option>
-            <option value="Golongan IIc">IIc / 2c</option>
-            <option value="Golongan IId">IId / 2d</option>
-            <option value="Golongan IIIa">IIIa / 3a</option>
-            <option value="Golongan IIIb">IIIb / 3b</option>
-            <option value="Golongan IIIc">IIIc / 3c</option>
-            <option value="Golongan IIId">IIId / 3d</option>
-            <option value="Golongan IVa">IVa / 4a</option>
-            <option value="Golongan IVb">IVb / 4b</option>
-            <option value="Golongan IVc">IVc / 4c</option>
-            <option value="Golongan IVd">IVd / 4d</option>
-          </select>
-
-          <label>Jabatan</label>
-          <input type="text" class="jabatan-input-field" name="jabatan[]" required />
-        </div>
-      </div>
-
-      <button type="button" id="addPegawaiBtn" style="margin-top: 10px;">➕ Tambah Pegawai</button>
-
-      <hr />
-
-      <h3>Detail Perjalanan Dinas</h3>
-
-      <label>Tujuan</label>
-      <input type="text" id="tujuan" required />
-
-      <label>Maksud Perjalanan</label>
-      <textarea id="maksud" rows="4" required></textarea>
-
-      <label>Tanggal Berangkat</label>
-      <div class="date-wrapper">
-        <input type="text" id="tanggalBerangkat" class="date-picker" required />
-        <span class="calendar-icon">📅</span>
-      </div>
-
-      <label>Tanggal Pulang</label>
-      <div class="date-wrapper">
-        <input type="text" id="tanggalPulang" class="date-picker" required />
-        <span class="calendar-icon">📅</span>
-      </div>
-
-      <label>Lama Perjalanan</label>
-      <input type="text" id="lamaPerjalanan" readonly />
-
-      <label>Kendaraan</label>
-      <input type="text" id="kendaraan" required />
-
-      <hr />
-
-      <h3>Penanggung Jawab</h3>
-
-      <input type="text" id="pjKegiatan" readonly required style="background:#f0f0f0;">
-
-      <hr />
-
-      <h3>Kode Kegiatan / MAK</h3>
-
-      <label>Pilih Kode Kegiatan</label>
-      <select id="kodeKegiatan" required>
-        <option value="">-- Pilih Kode Kegiatan --</option>
-      </select>
-
-      <hr />
-
-      <label>Sisa Anggaran</label>
-      <input type="text" id="sisaAnggaran" readonly style="background:#f0f0f0;">
-
-      <label>Rencana Biaya Total (angka)</label>
-      <input type="text" id="rencanaBiayaTotal" placeholder="Masukkan total biaya" required />
-
-      <hr />
-      <h3>Upload Dokumen</h3>
-
-      <label>Upload Rencana Biaya (PDF)</label>
-      <input type="file" id="urlBiaya" accept=".pdf" required />
-
-      <label>Upload Data Dukung (PDF)</label>
-      <input type="file" id="urlDukung" accept=".pdf" required />
-
-      <div id="uploadLoader" style="display:none; text-align:center;">
-        <div class="progress-ring"></div>
-        <div class="upload-text">Mengupload ke Database...</div>
-      </div>
-
-      <button type="submit" id="submitBtn">💾 Simpan Data</button>
-    </form>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-  <script>
-    /* =============================================================
-      VARIABEL GLOBAL + BASE STRUCTURE
-      ============================================================= */
-    const pegawaiWrapper = document.getElementById("pegawaiWrapper");
-    const addPegawaiBtn = document.getElementById("addPegawaiBtn");
-
-    /* =============================================================
-      1️⃣ FUNGSI NOTIFIKASI BANNER BARU
-      ============================================================= */
-    const notifBanner = document.getElementById("notifBanner")
-    const notifMessage = document.getElementById("notifMessage");
-    let notifTimeout;
-
-   function showNotification(message, type = "success", duration = 5000) {
-    clearTimeout(notifTimeout);
-
-    notifBanner.className = `notif-popup show ${type}`;
-
-    // Icon & Title
-    const notifIcon = document.getElementById("notifIcon");
-    const notifTitle = document.getElementById("notifTitle");
-
-    if (type === "success") {
-        notifIcon.textContent = "✔️";
-        notifTitle.textContent = "Berhasil";
-    } else {
-        notifIcon.textContent = "❌";
-        notifTitle.textContent = "Gagal";
-    }
-
-    notifMessage.innerHTML = message;
-
-    notifTimeout = setTimeout(hideNotification, duration);
-}
-
-
-    function hideNotification() {
-    clearTimeout(notifTimeout);
-    notifBanner.classList.remove("show");
-
-    setTimeout(() => {
-        notifBanner.className = "notif-popup";
-        notifMessage.textContent = "";
-    }, 300);
-}
-
-
-    /* =============================================================
-      2️⃣ FUNGSI AMBIL OPSI GOLONGAN (TIDAK DIUBAH)
-      ============================================================= */
-    const getGolonganOptions = () => `
-      <option value="">-- Pilih Golongan --</option>
-      <option value="Golongan IIa">IIa / 2a</option>
-      <option value="Golongan IIb">IIb / 2b</option>
-      <option value="Golongan IIc">IIc / 2c</option>
-      <option value="Golongan IId">IId / 2d</option>
-      <option value="Golongan IIIa">IIIa / 3a</option>
-      <option value="Golongan IIIb">IIIb / 3b</option>
-      <option value="Golongan IIIc">IIIc / 3c</option>
-      <option value="Golongan IIId">IIId / 3d</option>
-      <option value="Golongan IVa">IVa / 4a</option>
-      <option value="Golongan IVb">IVb / 4b</option>
-      <option value="Golongan IVc">IVc / 4c</option>
-      <option value="Golongan IVd">IVd / 4d</option>
-    `;
-
-    /* =============================================================
-      3️⃣ FUNGSI BUAT GRUP PEGAWAI + ANIMASI TAMBAH
-      ============================================================= */
-    function createPegawaiInputGroup() {
-      const div = document.createElement("div");
-      div.className = "pegawai-group row-add-animation";
-
-      div.innerHTML = `
-        <hr style="border-top:1px dashed #ccc; margin:10px 0;">
-        <label>Nama Pegawai ke-${pegawaiWrapper.children.length + 1}</label>
-        <input type="text" class="nama-input-field" name="nama[]" required />
+        <label>Nama Pegawai</label>
+        <select class="nama-select-field" name="nama[]" style="width:100%" required></select>
 
         <label>Golongan</label>
         <select class="golongan-select-field" name="golongan[]" required>
-          ${getGolonganOptions()}
+          <option value="">-- Pilih --</option>
+          <option value="Golongan IIIa">IIIa</option>
+          <option value="Golongan IIIb">IIIb</option>
+          <option value="Golongan IVa">IVa</option>
         </select>
 
         <label>Jabatan</label>
-        <input type="text" class="jabatan-input-field" name="jabatan[]" required />
+        <input type="text" class="jabatan-input-field" name="jabatan[]" required/>
 
-        <button type="button" class="removePegawaiBtn"
-          style="background:#dc3545;color:white;padding:6px 10px;border:none;border-radius:4px;margin-top:10px;">
-          🗑️ Hapus Pegawai Ini
-        </button>
-      `;
+      </div>
+    </div>
 
-      // Tombol Hapus
-      div.querySelector(".removePegawaiBtn").addEventListener("click", () => {
-        if (pegawaiWrapper.children.length > 1) {
-          div.classList.add("row-delete-animation");
-          setTimeout(() => {
-            div.remove();
-            updatePegawaiLabels();
-          }, 300);
-        } else {
-          showNotification("Minimal harus ada satu data pegawai.", "error"); // Mengganti alert
-        }
-      });
+    <button type="button" id="addPegawaiBtn">Tambah Pegawai</button>
 
-      return div;
+    <hr>
+
+    <label>Tujuan</label>
+    <input type="text" id="tujuan" required>
+
+    <label>Maksud</label>
+    <textarea id="maksud" required></textarea>
+
+    <label>Tanggal Berangkat</label>
+    <input type="text" id="tanggalBerangkat" class="date-picker">
+
+    <label>Tanggal Pulang</label>
+    <input type="text" id="tanggalPulang" class="date-picker">
+
+    <label>Lama</label>
+    <input type="text" id="lamaPerjalanan" readonly>
+
+    <label>Kendaraan</label>
+    <input type="text" id="kendaraan">
+
+    <hr>
+
+    <label>Kode Kegiatan</label>
+    <select id="kodeKegiatan"></select>
+
+    <label>Sisa Anggaran</label>
+    <input type="text" id="sisaAnggaran" readonly>
+
+    <label>Rencana Biaya</label>
+    <input type="text" id="rencanaBiayaTotal">
+
+    <button type="submit">Simpan</button>
+  </form>
+</main>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+/* =========================
+   SELECT2 PEGAWAI
+========================= */
+function initSelectPegawai(el){
+  $(el).select2({
+    placeholder: "Cari pegawai...",
+    minimumInputLength: 1,
+    ajax: {
+      url: "/.netlify/functions/pegawai_bun",
+      type: "POST",
+      contentType: "application/json",
+      delay: 300,
+
+      data: params => JSON.stringify({
+        search: params.term || "",
+        page: 1,
+        limit: 10
+      }),
+
+      processResults: data => ({
+        results: data.rows.map(item => ({
+          id: item.nama_pegawai,
+          text: item.nama_pegawai,
+          jabatan: item.jabatan,
+          golongan: item.golongan
+        }))
+      })
     }
+  });
 
-    /* =============================================================
-      4️⃣ UPDATE LABEL NOMOR PEGAWAI
-      ============================================================= */
-    function updatePegawaiLabels() {
-      const groups = pegawaiWrapper.querySelectorAll(".pegawai-group");
-      groups.forEach((group, index) => {
-        const label = group.querySelector("label");
-        label.textContent = index === 0 ? "Nama Pegawai" : `Nama Pegawai ke-${index + 1}`;
-      });
-    }
+  $(el).on("select2:select", function(e){
+    const d = e.params.data;
+    const group = el.closest(".pegawai-group");
 
-    /* =============================================================
-      5️⃣ BUTTON "TAMBAH PEGAWAI"
-      ============================================================= */
-    addPegawaiBtn.addEventListener("click", () => {
-      pegawaiWrapper.appendChild(createPegawaiInputGroup());
-      updatePegawaiLabels();
-    });
+    group.querySelector(".jabatan-input-field").value = d.jabatan || "";
+    group.querySelector(".golongan-select-field").value = d.golongan || "";
 
-    /* =============================================================
-      6️⃣ INISIALISASI FLATPICKR + HITUNG LAMA PERJALANAN
-      ============================================================= */
-    flatpickr(".date-picker", {
-      altInput: true,
-      altFormat: "d-m-Y",
-      dateFormat: "Y-m-d"
-    });
-
-    const tglB = document.getElementById("tanggalBerangkat");
-    const tglP = document.getElementById("tanggalPulang");
-    const lama = document.getElementById("lamaPerjalanan");
-
-    function hitungLama() {
-      const t1 = tglB.value ? new Date(tglB.value) : null;
-      const t2 = tglP.value ? new Date(tglP.value) : null;
-
-      if (t1 && t2 && t2 >= t1) {
-        const days = ((t2 - t1) / (1000 * 60 * 60 * 24)) + 1;
-        lama.value = `${days} hari`;
-      } else {
-        lama.value = "";
-      }
-    }
-
-    tglB.addEventListener("change", hitungLama);
-    tglP.addEventListener("change", hitungLama);
-
-    /* =============================================================
-      7️⃣ UPLOAD PDF KE CLOUDINARY + RING LOADER
-      ============================================================= */
-    async function uploadPDFtoCloudinary(file) {
-      if (!file) return "";
-
-      // Tampilkan loader
-      document.getElementById("uploadLoader").style.display = "block";
-
-      const cloudName = "ddbeawzos";
-      const uploadPreset = "pdfbun";
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
-
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
-        method: "POST",
-        body: formData
-      });
-
-      const data = await res.json();
-
-      // Sembunyikan loader
-      document.getElementById("uploadLoader").style.display = "none";
-
-      return data.secure_url;
-    }
-
-    /* =============================================================
-      8️⃣ FORMAT ANGKA 3.000.000 UNTUK INPUT RENCANA BIAYA
-      ============================================================= */
-    const biayaInput = document.getElementById("rencanaBiayaTotal");
-
-    // Format tampilan → 1.234.567
-    const formatRupiah = (value) => {
-      return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    };
-
-    // Hilangkan titik → hasil asli 1234567
-    const unformat = (value) => {
-      return value.replace(/\./g, "");
-    };
-
-    // Event setiap mengetik
-    biayaInput.addEventListener("input", (e) => {
-      let clean = unformat(e.target.value);
-
-      if (!clean) {
-        e.target.value = "";
-        return;
-      }
-
-      let numeric = parseInt(clean, 10);
-      e.target.value = formatRupiah(numeric.toString());
-    });
-
-    // Fungsi untuk ambil angka asli tanpa titik
-    function getBiayaNumeric() {
-      return parseInt(unformat(biayaInput.value)) || 0;
-    }
-
-    const kodeKegiatanSelect = document.getElementById("kodeKegiatan");
-    const sisaAnggaranInput = document.getElementById("sisaAnggaran");
-    const pjKegiatanSelect = document.getElementById("pjKegiatan");
-
-/* =============================================================
-  🔥 LOAD KODE KEGIATAN DINAMIS DARI DATABASE
-============================================================= */
-async function loadKodeKegiatan() {
-  try {
-    const res = await fetch("/.netlify/functions/anggaran", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ action: "getAll" })
-    });
-
-    const result = await res.json();
-
-    if (!res.ok || !result.success) {
-      throw new Error(result.message || "Gagal load kode kegiatan");
-    }
-
-    const data = result.data;
-
-    // kosongkan dulu (biar aman kalau reload)
-    kodeKegiatanSelect.innerHTML = `<option value="">-- Pilih Kode Kegiatan --</option>`;
-
-    // isi dari database
-    data.forEach(item => {
-      const opt = document.createElement("option");
-      opt.value = item.kode_kegiatan;
-      opt.textContent = item.kode_kegiatan;
-      kodeKegiatanSelect.appendChild(opt);
-    });
-
-  } catch (err) {
-    console.error("Load kode kegiatan error:", err);
-    showNotification("Gagal memuat kode kegiatan dari database", "error");
-  }
+    group.querySelector(".golongan-select-field")
+      .dispatchEvent(new Event("change"));
+  });
 }
 
-/* =============================================================
-  🔥 EVENT SAAT PILIH KODE KEGIATAN
-============================================================= */
-kodeKegiatanSelect.addEventListener("change", async () => {
-  const kode = kodeKegiatanSelect.value;
+/* INIT */
+document.querySelectorAll(".nama-select-field")
+  .forEach(el => initSelectPegawai(el));
 
-  if (!kode) {
-    sisaAnggaranInput.value = "";
-    pjKegiatanSelect.value = "";
-    return;
-  }
+/* TAMBAH ROW */
+document.getElementById("addPegawaiBtn").addEventListener("click", () => {
 
-  try {
-    const res = await fetch("/.netlify/functions/anggaran", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        action: "getByKode",
-        kode_kegiatan: kode
-      })
-    });
+  const div = document.createElement("div");
+  div.className = "pegawai-group";
 
-    const result = await res.json();
+  div.innerHTML = `
+    <hr>
+    <label>Nama Pegawai</label>
+    <select class="nama-select-field" name="nama[]" style="width:100%" required></select>
 
-    if (!res.ok || !result.success) {
-      throw new Error(result.message || "Data tidak ditemukan");
-    }
+    <label>Golongan</label>
+    <select class="golongan-select-field" name="golongan[]" required>
+      <option value="">-- Pilih --</option>
+      <option value="Golongan IIIa">IIIa</option>
+      <option value="Golongan IIIb">IIIb</option>
+      <option value="Golongan IVa">IVa</option>
+    </select>
 
-    const data = result.data;
+    <label>Jabatan</label>
+    <input type="text" class="jabatan-input-field" name="jabatan[]" required/>
+  `;
 
-    // ✅ isi sisa anggaran
-    const sisa = Number(data.sisa_anggaran) || 0;
-    sisaAnggaranInput.value = formatRupiah(String(sisa));
+  document.getElementById("pegawaiWrapper").appendChild(div);
 
-    // ✅ isi PJ kegiatan (auto dari DB)
-    pjKegiatanSelect.value = data.pj_kegiatan || "";
-
-  } catch (err) {
-    console.error(err);
-    showNotification("Gagal mengambil data anggaran", "error");
-  }
+  initSelectPegawai(div.querySelector(".nama-select-field"));
 });
 
+/* SUBMIT */
+document.getElementById("perjadinForm").addEventListener("submit", async(e)=>{
+  e.preventDefault();
 
-    // Ketika user memilih kode kegiatan -> ambil sisa_anggaran dari DB
-    kodeKegiatanSelect.addEventListener("change", async () => {
-      const kode = kodeKegiatanSelect.value;
-      if (!kode) {
-        sisaAnggaranInput.value = "";
-        return;
-      }
+  const names = [...document.querySelectorAll(".nama-select-field")]
+    .map(el => el.value);
 
-      try {
-        // Panggil endpoint anggaran (harus ada anggaran.js yang mendukung action getByKode)
-        const res = await fetch("/.netlify/functions/anggaran", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "getByKode", kode_kegiatan: kode })
-        });
+  const gol = [...document.querySelectorAll(".golongan-select-field")]
+    .map(el => el.value);
 
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.message || "Kode kegiatan tidak ditemukan");
+  const jab = [...document.querySelectorAll(".jabatan-input-field")]
+    .map(el => el.value);
 
-        // Ambil sisa_anggaran dari response
-        const sisa = Number(data.data.sisa_anggaran) || 0;
-        sisaAnggaranInput.value = formatRupiah(String(sisa));
-      } catch (err) {
-        console.error(err);
-        showNotification("Gagal mengambil sisa anggaran. Cek konsol untuk detail.", "error"); // Mengganti alert
-        sisaAnggaranInput.value = "";
-      }
-    });
+  const allPegawai = names.map((n,i)=>({
+    nama:n,
+    golongan:gol[i],
+    jabatan:jab[i]
+  }));
 
-    /* =============================================================
-      9️⃣ LOAD USER LOGIN
-      ============================================================= */
-   document.addEventListener("DOMContentLoaded", () => {
-  const user = localStorage.getItem("loggedInUser");
+  const body = {
+    email_user: localStorage.getItem("loggedInUser"),
+    allPegawai,
+    tujuan: document.getElementById("tujuan").value,
+    maksud: document.getElementById("maksud").value,
+    tanggal_berangkat: document.getElementById("tanggalBerangkat").value,
+    tanggal_pulang: document.getElementById("tanggalPulang").value,
+    lama_perjalanan: document.getElementById("lamaPerjalanan").value,
+    kendaraan: document.getElementById("kendaraan").value,
+    rencanabiaya: 0,
+    kode_kegiatan: document.getElementById("kodeKegiatan").value
+  };
 
-  if (!user) {
-    showNotification("Anda belum login. Mengarahkan ke halaman login...", "error", 3000);
-    setTimeout(() => location.href = "index.html", 3000);
-    return;
-  }
+  const res = await fetch("/.netlify/functions/simpan-perjadin", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
 
-  document.getElementById("userDisplay").textContent = "👤 " + user;
+  const result = await res.json();
 
-  // 🔥 LOAD DATA KODE KEGIATAN
-  loadKodeKegiatan();
+  alert(result.message);
 });
-
-
-      
-    /* =============================================================
-      10️⃣ HANDLE SUBMIT FORM (MODIFIKASI PENGGUNAAN NOTIFIKASI)
-      ============================================================= */
-    document.getElementById("perjadinForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const btn = document.getElementById("submitBtn");
-      btn.disabled = true;
-      btn.textContent = "⏳ Mengirim data...";
-
-      try {
-        const user = localStorage.getItem("loggedInUser");
-        if (!user) {
-            showNotification("User login tidak ditemukan. Mengarahkan ke halaman login...", "error", 3000);
-            setTimeout(() => location.href = "index.html", 3000);
-            return;
-        }
-
-        // Kumpulkan Data Pegawai
-        const names = [...document.querySelectorAll(".nama-input-field")].map(a => a.value);
-        const gol = [...document.querySelectorAll(".golongan-select-field")].map(a => a.value);
-        const jab = [...document.querySelectorAll(".jabatan-input-field")].map(a => a.value);
-
-        const allPegawai = names.map((x, i) => ({
-          nama: x,
-          golongan: gol[i],
-          jabatan: jab[i]
-        }));
-
-        // Ambil nilai rencana biaya & sisa anggaran (client-side quick check)
-        const rencanaBiaya = getBiayaNumeric();
-        const sisaAnggaran = parseInt(unformat(sisaAnggaranInput.value)) || 0;
-
-        // Quick client-side validation (tidak menggantikan validasi server)
-        if (!document.getElementById("kodeKegiatan").value) {
-          showNotification("Silakan pilih **Kode Kegiatan** terlebih dahulu.", "error");
-          btn.disabled = false;
-          btn.textContent = "💾 Simpan Data";
-          return;
-        }
-
-        if (rencanaBiaya > sisaAnggaran) {
-          showNotification(`❌ Rencana biaya melebihi sisa anggaran! (Sisa: ${formatRupiah(String(sisaAnggaran))})`, "error", 8000);
-          btn.disabled = false;
-          btn.textContent = "💾 Simpan Data";
-          return;
-        }
-
-        // Upload PDF
-        const biaya = document.getElementById("urlBiaya").files[0];
-        const dukung = document.getElementById("urlDukung").files[0];
-
-        const [urlbiaya, urldatadukung] = await Promise.all([
-          uploadPDFtoCloudinary(biaya),
-          uploadPDFtoCloudinary(dukung)
-        ]);
-
-        // Body request -> kirim ke simpan-perjadin (server akan validasi anggaran lagi & update sisa)
-        const body = {
-          email_user: user,
-          allPegawai,
-          tujuan: document.getElementById("tujuan").value,
-          maksud: document.getElementById("maksud").value,
-          tanggal_berangkat: tglB.value,
-          tanggal_pulang: tglP.value,
-          lama_perjalanan: lama.value,
-          kendaraan: document.getElementById("kendaraan").value,
-          pj_kegiatan: document.getElementById("pjKegiatan").value,
-          pj_subkegiatan: document.getElementById("pjSub").value,
-          urlbiaya,
-          urldatadukung,
-          rencanabiaya: rencanaBiaya,
-          kode_kegiatan: document.getElementById("kodeKegiatan").value
-        };
-
-        // Kirim ke Netlify Function yang menyimpan & validasi anggaran
-        const res = await fetch("/.netlify/functions/simpan-perjadin", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-
-        const result = await res.json();
-        if (!res.ok || !result.success) throw new Error(result.message || 'Gagal menyimpan pengajuan');
-
-        showNotification(`✅ Berhasil: ${result.message}`, "success"); // Mengganti alert
-        
-        // ⏩ Redirect ke halaman riwayat setelah sukses
-setTimeout(() => {
-  window.location.href = "riwayat_perjadin.html";
-}, 2000); // 2 detik
-
-
-        document.getElementById("perjadinForm").reset();
-        lama.value = "";
-
-        // Hapus pegawai tambahan
-        const group = pegawaiWrapper.querySelectorAll(".pegawai-group");
-        for (let i = 1; i < group.length; i++) group[i].remove();
-
-      } catch (err) {
-        showNotification(`❌ **Gagal:** ${err.message}`, "error", 8000); // Mengganti alert
-      }
-
-      btn.disabled = false;
-      btn.textContent = "💾 Simpan Data";
-    });
-
-  </script>
+</script>
 
 </body>
 </html>
