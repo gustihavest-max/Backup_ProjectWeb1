@@ -126,38 +126,56 @@
 ========================= */
 function initSelectPegawai(el) {
   $(el).select2({
-    placeholder: "🔍 Cari pegawai...",
+    placeholder: "🔍 Cari nama pegawai...",
     minimumInputLength: 1,
+    allowClear: true,
     ajax: {
-      url: "/.netlify/functions/pegawai_bun",
+      url: "/.netlify/functions/pegawai_bun", // 💡 Pastikan nama file di folder functions adalah pegawai_bun.js
       type: "POST",
+      dataType: 'json',
       contentType: "application/json",
-      delay: 300,
-      data: params => JSON.stringify({
-        search: params.term || "",
-        page: 1,
-        limit: 10
-      }),
-      processResults: data => ({
-        results: data.rows.map(item => ({
-          id: item.nama_pegawai,
-          text: item.nama_pegawai,
-          jabatan: item.jabatan,
-          golongan: item.golongan
-        }))
-      })
+      delay: 250,
+      data: function (params) {
+        return JSON.stringify({
+          search: params.term, // Kata kunci pencarian
+          page: 1,
+          limit: 10
+        });
+      },
+      processResults: function (data) {
+        console.log("Data dari server:", data); // 💡 CEK DI CONSOLE F12
+        
+        // Pastikan data.rows ada (sesuai backend Anda)
+        if (!data.rows) return { results: [] };
+
+        return {
+          results: data.rows.map(item => ({
+            id: item.nama_pegawai,   // Ini yang akan disimpan di value select
+            text: item.nama_pegawai, // Ini yang tampil di dropdown
+            jabatan: item.jabatan,
+            golongan: item.golongan
+          }))
+        };
+      },
+      cache: true
     }
   });
 
+  // Event saat nama dipilih
   $(el).on("select2:select", function (e) {
     const data = e.params.data;
-    const group = el.closest(".pegawai-group");
+    const group = this.closest(".pegawai-group");
 
-    group.querySelector(".jabatan-input-field").value = data.jabatan || "";
-    group.querySelector(".golongan-select-field").value = data.golongan || "";
+    // Isi otomatis field lainnya
+    const jabatanField = group.querySelector(".jabatan-input-field");
+    const golonganField = group.querySelector(".golongan-select-field");
 
-    group.querySelector(".golongan-select-field")
-      .dispatchEvent(new Event("change"));
+    if (jabatanField) jabatanField.value = data.jabatan || "";
+    if (golonganField) {
+        golonganField.value = data.golongan;
+        // Trigger change agar jika ada validasi lain ikut terbaca
+        $(golonganField).trigger('change'); 
+    }
   });
 }
 
