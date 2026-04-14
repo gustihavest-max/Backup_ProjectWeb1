@@ -102,14 +102,7 @@
 
       <h3>Penanggung Jawab</h3>
 
-      <label>PJ Kegiatan</label>
-      <select id="pjKegiatan" required>
-        <option value="">-- Pilih PJ Kegiatan --</option>
-        <option value="Dr. Ir. I Ketut Kariyasa, M.Si">Dr. Ir. I Ketut Kariyasa, M.Si</option>
-        <option value="Muh. Imran Ibrahim, SE., M.AP">Muh. Imran Ibrahim, SE., M.AP</option>
-        <option value="Raden Dani Medionovianto, S.PT., M.A.P.">Raden Dani Medionovianto, S.PT., M.A.P.</option>
-        <option value="Raden Hera Nurhayati, SP">Raden Hera Nurhayati, SP</option>
-      </select>
+      <input type="text" id="pjKegiatan" readonly required style="background:#f0f0f0;">
 
       <hr />
 
@@ -440,20 +433,19 @@ kodeKegiatanSelect.addEventListener("change", async () => {
 
     const data = result.data;
 
-    // 🔥 isi sisa anggaran
+    // ✅ isi sisa anggaran
     const sisa = Number(data.sisa_anggaran) || 0;
     sisaAnggaranInput.value = formatRupiah(String(sisa));
 
-    // 🔥 AUTO PILIH PJ KEGIATAN
-    if (data.pj_kegiatan) {
-      pjKegiatanSelect.value = data.pj_kegiatan;
-    }
+    // ✅ isi PJ kegiatan (auto dari DB)
+    pjKegiatanSelect.value = data.pj_kegiatan || "";
 
   } catch (err) {
     console.error(err);
     showNotification("Gagal mengambil data anggaran", "error");
   }
 });
+
 
     // Ketika user memilih kode kegiatan -> ambil sisa_anggaran dari DB
     kodeKegiatanSelect.addEventListener("change", async () => {
