@@ -61,29 +61,41 @@
     <label>Maksud</label>
     <textarea id="maksud" required></textarea>
 
-    <label>Tanggal Berangkat</label>
-    <input type="text" id="tanggalBerangkat" class="date-picker" />
-
-    <label>Tanggal Pulang</label>
-    <input type="text" id="tanggalPulang" class="date-picker" />
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Tanggal Berangkat</label>
+            <input type="text" id="tanggalBerangkat" class="date-picker" required />
+        </div>
+        <div style="flex: 1;">
+            <label>Tanggal Pulang</label>
+            <input type="text" id="tanggalPulang" class="date-picker" required />
+        </div>
+    </div>
 
     <label>Lama Perjalanan</label>
-    <input type="text" id="lamaPerjalanan" readonly />
+    <input type="text" id="lamaPerjalanan" readonly style="background: #f4f4f4;" />
 
     <label>Kendaraan</label>
-    <input type="text" id="kendaraan" />
+    <input type="text" id="kendaraan" required />
 
     <hr />
-    <label>Kode Kegiatan</label>
-    <select id="kodeKegiatan"></select>
+    <h3>Anggaran & Kegiatan</h3>
+    
+    <label>Pilih Kode Kegiatan (MAK)</label>
+    <select id="kodeKegiatan" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+        <option value="">-- Memuat Kode Kegiatan... --</option>
+    </select>
 
-    <label>Sisa Anggaran</label>
-    <input type="text" id="sisaAnggaran" readonly />
+    <label>Penanggung Jawab Kegiatan</label>
+    <input type="text" id="pjKegiatan" readonly placeholder="Terisi otomatis..." style="background: #f4f4f4;" />
 
-    <label>Rencana Biaya</label>
-    <input type="text" id="rencanaBiayaTotal" />
+    <label>Sisa Anggaran (Rp)</label>
+    <input type="text" id="sisaAnggaran" readonly placeholder="Terisi otomatis..." style="background: #f4f4f4; font-weight: bold; color: #2c3e50;" />
 
-    <button type="submit" id="submitBtn">💾 Simpan</button>
+    <label>Rencana Biaya (Angka Saja)</label>
+    <input type="number" id="rencanaBiayaTotal" placeholder="Contoh: 1500000" required />
+
+    <button type="submit" id="submitBtn">💾 Simpan Pengajuan</button>
   </form>
 </main>
 
@@ -93,7 +105,7 @@
 
 <script>
 /* =========================
-   SELECT2 PEGAWAI (FIXED)
+   1. SELECT2 PEGAWAI
 ========================= */
 function initSelectPegawai(el) {
   $(el).select2({
@@ -124,32 +136,92 @@ function initSelectPegawai(el) {
   $(el).on("select2:select", function (e) {
     const data = e.params.data;
     const group = this.closest(".pegawai-group");
-
-    // 🔥 Mengisi field otomatis
     group.querySelector(".jabatan-input-field").value = data.jabatan || "-";
     group.querySelector(".golongan-select-field").value = data.golongan || "-";
   });
 }
 
-/* INIT LOAD */
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".nama-select-field").forEach(el => initSelectPegawai(el));
-  
-  // Flatpickr & Hitung Hari
-  const fpB = flatpickr("#tanggalBerangkat", { onChange: hitungLama });
-  const fpP = flatpickr("#tanggalPulang", { onChange: hitungLama });
-});
+/* =========================
+   2. FUNGSI ANGGARAN (NEW)
+========================= */
+// Global data untuk menyimpan detail anggaran
+let dataAnggaranGlobal = [];
 
-function hitungLama() {
-  const t1 = new Date(document.getElementById("tanggalBerangkat").value);
-  const t2 = new Date(document.getElementById("tanggalPulang").value);
-  if (t1 && t2 && t2 >= t1) {
-    const diff = Math.ceil((t2 - t1) / (1000 * 60 * 60 * 24)) + 1;
-    document.getElementById("lamaPerjalanan").value = diff + " Hari";
+async function fetchDaftarAnggaran() {
+  try {
+    const res = await fetch("/.netlify/functions/anggaran", {
+      method: "POST",
+      body: JSON.stringify({ action: "getAll" })
+    });
+    const result = await res.json();
+    
+    if (result.success) {
+      dataAnggaranGlobal = result.data;
+      const select = document.getElementById("kodeKegiatan");
+      select.innerHTML = '<option value="">-- Pilih Kode Kegiatan --</option>';
+      
+      dataAnggaranGlobal.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.kode_kegiatan;
+        opt.textContent = `${item.kode_kegiatan} - ${item.pj_kegiatan}`;
+        select.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.error("Gagal memuat anggaran:", err);
   }
 }
 
-/* TAMBAH BARIS PEGAWAI */
+// Event saat Kode Kegiatan dipilih
+document.getElementById("kodeKegiatan").addEventListener("change", function() {
+  const selectedKode = this.value;
+  const find = dataAnggaranGlobal.find(a => a.kode_kegiatan === selectedKode);
+  
+  if (find) {
+    document.getElementById("pjKegiatan").value = find.pj_kegiatan || "-";
+    // Format Rupiah sederhana
+    const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
+    document.getElementById("sisaAnggaran").value = formatter.format(find.sisa_anggaran);
+  } else {
+    document.getElementById("pjKegiatan").value = "";
+    document.getElementById("sisaAnggaran").value = "";
+  }
+});
+
+/* =========================
+   3. INIT & HELPER
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("loggedInUser");
+  if(user) document.getElementById("userDisplay").textContent = "👤 " + user;
+
+  document.querySelectorAll(".nama-select-field").forEach(el => initSelectPegawai(el));
+  
+  // Ambil data anggaran dari database
+  fetchDaftarAnggaran();
+
+  // Flatpickr
+  flatpickr(".date-picker", { 
+    altInput: true, 
+    altFormat: "d-m-Y", 
+    dateFormat: "Y-m-d",
+    onChange: hitungLama 
+  });
+});
+
+function hitungLama() {
+  const d1 = document.getElementById("tanggalBerangkat").value;
+  const d2 = document.getElementById("tanggalPulang").value;
+  if (d1 && d2) {
+    const t1 = new Date(d1);
+    const t2 = new Date(d2);
+    if (t2 >= t1) {
+      const diff = Math.ceil((t2 - t1) / (1000 * 60 * 60 * 24)) + 1;
+      document.getElementById("lamaPerjalanan").value = diff + " Hari";
+    }
+  }
+}
+
 document.getElementById("addPegawaiBtn").addEventListener("click", () => {
   const div = document.createElement("div");
   div.className = "pegawai-group";
@@ -167,9 +239,16 @@ document.getElementById("addPegawaiBtn").addEventListener("click", () => {
   initSelectPegawai(div.querySelector(".nama-select-field"));
 });
 
-/* SUBMIT FORM */
+/* =========================
+   4. SUBMIT (FIXED)
+========================= */
 document.getElementById("perjadinForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+  
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "⏳ Menyimpan...";
+
   const names = [...document.querySelectorAll(".nama-select-field")].map(el => el.value);
   const gol = [...document.querySelectorAll(".golongan-select-field")].map(el => el.value);
   const jab = [...document.querySelectorAll(".jabatan-input-field")].map(el => el.value);
@@ -185,17 +264,26 @@ document.getElementById("perjadinForm").addEventListener("submit", async (e) => 
     tanggal_pulang: document.getElementById("tanggalPulang").value,
     lama_perjalanan: document.getElementById("lamaPerjalanan").value,
     kendaraan: document.getElementById("kendaraan").value,
-    kode_kegiatan: document.getElementById("kodeKegiatan").value
+    kode_kegiatan: document.getElementById("kodeKegiatan").value,
+    pj_kegiatan: document.getElementById("pjKegiatan").value,
+    rencanabiaya: document.getElementById("rencanaBiayaTotal").value
   };
 
-  const res = await fetch("/.netlify/functions/simpan-perjadin", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-  const result = await res.json();
-  alert(result.message);
-  if(result.success) location.reload();
+  try {
+    const res = await fetch("/.netlify/functions/simpan-perjadin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const result = await res.json();
+    alert(result.message);
+    if(result.success) location.href = "dashboard.html";
+  } catch (err) {
+    alert("Terjadi kesalahan server");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "💾 Simpan Pengajuan";
+  }
 });
 </script>
 </body>
