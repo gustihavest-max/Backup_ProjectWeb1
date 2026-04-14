@@ -1,67 +1,190 @@
-body{
-    font-family: Arial;
-    background:#f5f6fa;
+/* ================= GLOBAL ================= */
+* {
+    box-sizing: border-box;
 }
 
-.navbar{
-    background:#0d6efd;
-    color:white;
-    padding:15px;
+body {
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: url("img/psip-bun.jpeg") center/cover no-repeat fixed;
+    color: #333;
 }
 
-.container{
-    padding:20px;
+/* ================= NAVBAR ================= */
+.navbar {
+    background: #0b7b2e;
+    color: white;
+    padding: 14px 24px;
+    font-size: 20px;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-table{
-    width:100%;
+/* ================= CONTAINER ================= */
+.container {
+    width: 90%;
+    margin: 30px auto;
+}
+
+/* ================= BUTTON ================= */
+.primary-btn {
+    background: #0d6efd;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.primary-btn:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+}
+
+/* ================= TABLE ================= */
+table {
+    width: 100%;
     border-collapse: collapse;
-    background:white;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
+thead {
+    background: #0b7b2e;
+    color: white;
 }
 
-th{
-    background:#eee;
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
 }
 
-button{
-    padding:5px 10px;
-    margin:2px;
-    cursor:pointer;
+tbody tr {
+    transition: 0.2s;
 }
 
-.primary-btn{
-    background:#0d6efd;
-    color:white;
-    border:none;
-    margin-bottom:10px;
+tbody tr:hover {
+    background: #f1f9ff;
 }
 
-/* MODAL */
-.modal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    background:rgba(0,0,0,0.5);
-    justify-content:center;
-    align-items:center;
+/* ================= BUTTON TABLE ================= */
+button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
 }
 
-.modal-content{
-    background:white;
-    padding:20px;
-    width:300px;
+button:hover {
+    opacity: 0.9;
 }
 
-input,textarea{
-    width:100%;
-    margin:5px 0;
-    padding:8px;
+button:nth-child(1) {
+    background: #ffc107;
+}
+
+button:nth-child(2) {
+    background: #dc3545;
+    color: white;
+}
+
+/* ================= MODAL ================= */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+/* aktif */
+.modal.show,
+.modal[style*="flex"] {
+    display: flex !important;
+}
+
+.modal-content {
+    background: white;
+    width: 400px;
+    padding: 25px;
+    border-radius: 12px;
+    animation: popup 0.2s ease;
+}
+
+/* animasi */
+@keyframes popup {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ================= FORM ================= */
+.modal-content h3 {
+    margin-top: 0;
+}
+
+.modal-content input,
+.modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* focus */
+.modal-content input:focus,
+.modal-content textarea:focus {
+    border-color: #0b7b2e;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(11,123,46,0.2);
+}
+
+/* ================= MODAL BUTTON ================= */
+.modal-content button {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.modal-content button[type="submit"] {
+    background: #198754;
+    color: white;
+}
+
+.modal-content button[type="button"] {
+    background: #6c757d;
+    color: white;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 90%;
+    }
+
+    table {
+        font-size: 12px;
+    }
 }
