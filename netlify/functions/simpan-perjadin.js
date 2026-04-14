@@ -1,54 +1,148 @@
+// netlify/functions/simpan-perjadin.js
 const pool = require('./db');
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: JSON.stringify({ success: false, message: 'Method not allowed' }) };
+  }
 
-  const body = JSON.parse(event.body);
-  const { allPegawai, kode_kegiatan, rencanabiaya, email_user, ...data } = body;
-  const biayaNum = Number(rencanabiaya);
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch (e) {
+    return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Invalid JSON' }) };
+  }
+
+  const {
+    email_user,
+    allPegawai,
+    tujuan,
+    maksud,
+    tanggal_berangkat,
+    tanggal_pulang,
+    lama_perjalanan,
+    kendaraan,
+    pj_kegiatan,
+    pj_subkegiatan,
+    urlbiaya,
+    urldatadukung,
+    rencanabiaya,
+    kode_kegiatan
+  } = body;
+
+  // Basic validation
+  if (!email_user) return { statusCode: 400, body: JSON.stringify({ success: false, message: 'User tidak ditemukan' }) };
+  if (!Array.isArray(allPegawai) || allPegawai.length === 0) return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Data pegawai kosong' }) };
+  if (!kode_kegiatan) return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Kode kegiatan wajib' }) };
+  if (!rencanabiaya || isNaN(Number(rencanabiaya))) return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Rencana biaya tidak valid' }) };
+
+  const rencanaBiaya = Number(rencanabiaya);
 
   let conn;
   try {
     conn = await pool.getConnection();
     await conn.beginTransaction();
 
-    // 1. Validasi Anggaran
-    const [anggaran] = await conn.execute(
-      'SELECT sisa_anggaran, anggaran_digunakan FROM anggaran_kegiatan WHERE kode_kegiatan = ? FOR UPDATE',
+    /* =====================================================
+       1️⃣ AMBIL id_perjadin BARU (SATU KALI)
+       ===================================================== */
+    const [[{ next_id }]] = await conn.execute(
+      'SELECT COALESCE(MAX(id_perjadin), 0) + 1 AS next_id FROM ajukanperjadin'
+    );
+    const id_perjadin = next_id;
+
+    /* =====================================================
+       2️⃣ LOCK & VALIDASI ANGGARAN
+       ===================================================== */
+    const [rows] = await conn.execute(
+      'SELECT pagu_anggaran, sisa_anggaran, anggaran_digunakan FROM anggaran_kegiatan WHERE kode_kegiatan = ? FOR UPDATE',
       [kode_kegiatan]
     );
 
-    if (!anggaran.length || anggaran[0].sisa_anggaran < biayaNum) {
-      throw new Error('Anggaran tidak mencukupi atau kode tidak valid');
+    if (!rows || rows.length === 0) {
+      await conn.rollback();
+      conn.release();
+      return { statusCode: 404, body: JSON.stringify({ success: false, message: 'Kode kegiatan tidak ditemukan' }) };
     }
 
-    // 2. Generate ID Perjadin Baru
-    const [[{ next_id }]] = await conn.execute('SELECT COALESCE(MAX(id_perjadin), 0) + 1 AS next_id FROM ajukanperjadin');
+    const anggaran = rows[0];
+    const currentSisa = Number(anggaran.sisa_anggaran) || 0;
+    const currentDigunakan = Number(anggaran.anggaran_digunakan) || 0;
 
-    // 3. Bulk Insert Pegawai (Sangat Efisien)
-    const sql = `INSERT INTO ajukanperjadin (id_perjadin, email_user, nama, golongan, jabatan, tujuan, maksud, tanggal_berangkat, tanggal_pulang, lama_perjalanan, kendaraan, pj_kegiatan, kode_kegiatan, rencanabiaya) VALUES ?`;
-    
-    const values = allPegawai.map(p => [
-      next_id, email_user, p.nama, p.golongan, p.jabatan, 
-      data.tujuan, data.maksud, data.tanggal_berangkat, data.tanggal_pulang,
-      data.lama_perjalanan, data.kendaraan, data.pj_kegiatan, kode_kegiatan, biayaNum
-    ]);
+    if (rencanaBiaya > currentSisa) {
+      await conn.rollback();
+      conn.release();
+      return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Sisa anggaran tidak mencukupi' }) };
+    }
 
-    await conn.query(sql, [values]);
+   // Ganti bagian insert di simpan-perjadin.js Anda:
 
-    // 4. Update Anggaran
+/* =====================================================
+   3️⃣ BULK INSERT SEMUA PEGAWAI (LEBIH CEPAT)
+   ===================================================== */
+const insertSQL = `
+  INSERT INTO ajukanperjadin 
+  (id_perjadin, email_user, nama, golongan, jabatan, 
+   tujuan, maksud, tanggal_berangkat, tanggal_pulang, 
+   lama_perjalanan, kendaraan, pj_kegiatan, 
+   kode_kegiatan, rencanabiaya, urlbiaya, urldatadukung) 
+  VALUES ?`;
+
+const values = allPegawai.map(p => [
+  id_perjadin, 
+  email_user, 
+  p.nama, 
+  p.golongan, 
+  p.jabatan,
+  tujuan, 
+  maksud, 
+  tanggal_berangkat, 
+  tanggal_pulang, 
+  lama_perjalanan, 
+  kendaraan, 
+  pj_kegiatan, 
+  kode_kegiatan, 
+  rencanaBiaya, 
+  urlbiaya, 
+  urldatadukung
+]);
+
+// Jalankan satu kali query untuk semua data
+await conn.query(insertSQL, [values]);
+
+    /* =====================================================
+       4️⃣ UPDATE ANGGARAN
+       ===================================================== */
+    const newSisa = currentSisa - rencanaBiaya;
+    const newDigunakan = currentDigunakan + rencanaBiaya;
+
     await conn.execute(
-      'UPDATE anggaran_kegiatan SET sisa_anggaran = sisa_anggaran - ?, anggaran_digunakan = anggaran_digunakan + ? WHERE kode_kegiatan = ?',
-      [biayaNum, biayaNum, kode_kegiatan]
+      'UPDATE anggaran_kegiatan SET sisa_anggaran = ?, anggaran_digunakan = ? WHERE kode_kegiatan = ?',
+      [newSisa, newDigunakan, kode_kegiatan]
     );
 
     await conn.commit();
-    return { statusCode: 200, body: JSON.stringify({ success: true, id: next_id }) };
+    conn.release();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        message: `Pengajuan #${id_perjadin} berhasil disimpan (${rowsInserted} pegawai)`,
+        id_perjadin,
+        rowsInserted,
+        newSisa
+      })
+    };
 
   } catch (err) {
-    if (conn) await conn.rollback();
-    return { statusCode: 500, body: JSON.stringify({ success: false, message: err.message }) };
-  } finally {
-    if (conn) conn.release();
+    console.error('Error simpan-perjadin:', err);
+    if (conn) {
+      try {
+        await conn.rollback();
+        conn.release();
+      } catch (_) {}
+    }
+    return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Server error', error: err.message }) };
   }
 };
