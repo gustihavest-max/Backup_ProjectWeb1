@@ -118,14 +118,6 @@
       <label>Pilih Kode Kegiatan</label>
       <select id="kodeKegiatan" required>
         <option value="">-- Pilih Kode Kegiatan --</option>
-        <option value="6918.EBA.958.051.A">6918.EBA.958.051.A</option>
-        <option value="6918.EBA.958.051.B">6918.EBA.958.051.B</option>
-        <option value="6918.EBA.958.051.C">6918.EBA.958.051.C</option>
-        <option value="6916.CAG.102.051.A">6916.CAG.102.051.A</option>
-        <option value="6918.EBA.994.001.A">6918.EBA.994.001.A</option>
-        <option value="6918.EBA.994.002.A">6918.EBA.994.002.A</option>
-        <option value="6918.EBA.994.001.B">6918.EBA.994.001.B</option>
-        <option value="6918.EBA.994.001.C">6918.EBA.994.001.C</option>
       </select>
 
       <hr />
@@ -376,6 +368,92 @@
 
     const kodeKegiatanSelect = document.getElementById("kodeKegiatan");
     const sisaAnggaranInput = document.getElementById("sisaAnggaran");
+    const pjKegiatanSelect = document.getElementById("pjKegiatan");
+
+/* =============================================================
+  🔥 LOAD KODE KEGIATAN DINAMIS DARI DATABASE
+============================================================= */
+async function loadKodeKegiatan() {
+  try {
+    const res = await fetch("/.netlify/functions/anggaran", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ action: "getAll" })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      throw new Error(result.message || "Gagal load kode kegiatan");
+    }
+
+    const data = result.data;
+
+    // kosongkan dulu (biar aman kalau reload)
+    kodeKegiatanSelect.innerHTML = `<option value="">-- Pilih Kode Kegiatan --</option>`;
+
+    // isi dari database
+    data.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item.kode_kegiatan;
+      opt.textContent = item.kode_kegiatan;
+      kodeKegiatanSelect.appendChild(opt);
+    });
+
+  } catch (err) {
+    console.error("Load kode kegiatan error:", err);
+    showNotification("Gagal memuat kode kegiatan dari database", "error");
+  }
+}
+
+/* =============================================================
+  🔥 EVENT SAAT PILIH KODE KEGIATAN
+============================================================= */
+kodeKegiatanSelect.addEventListener("change", async () => {
+  const kode = kodeKegiatanSelect.value;
+
+  if (!kode) {
+    sisaAnggaranInput.value = "";
+    pjKegiatanSelect.value = "";
+    return;
+  }
+
+  try {
+    const res = await fetch("/.netlify/functions/anggaran", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "getByKode",
+        kode_kegiatan: kode
+      })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      throw new Error(result.message || "Data tidak ditemukan");
+    }
+
+    const data = result.data;
+
+    // 🔥 isi sisa anggaran
+    const sisa = Number(data.sisa_anggaran) || 0;
+    sisaAnggaranInput.value = formatRupiah(String(sisa));
+
+    // 🔥 AUTO PILIH PJ KEGIATAN
+    if (data.pj_kegiatan) {
+      pjKegiatanSelect.value = data.pj_kegiatan;
+    }
+
+  } catch (err) {
+    console.error(err);
+    showNotification("Gagal mengambil data anggaran", "error");
+  }
+});
 
     // Ketika user memilih kode kegiatan -> ambil sisa_anggaran dari DB
     kodeKegiatanSelect.addEventListener("change", async () => {
@@ -409,16 +487,23 @@
     /* =============================================================
       9️⃣ LOAD USER LOGIN
       ============================================================= */
-    document.addEventListener("DOMContentLoaded", () => {
-      const user = localStorage.getItem("loggedInUser");
-      if (!user) {
-        showNotification("Anda belum login. Mengarahkan ke halaman login...", "error", 3000); // Mengganti alert
-        setTimeout(() => location.href = "index.html", 3000);
-        return;
-      }
-      document.getElementById("userDisplay").textContent = "👤 " + user;
-    });
+   document.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("loggedInUser");
 
+  if (!user) {
+    showNotification("Anda belum login. Mengarahkan ke halaman login...", "error", 3000);
+    setTimeout(() => location.href = "index.html", 3000);
+    return;
+  }
+
+  document.getElementById("userDisplay").textContent = "👤 " + user;
+
+  // 🔥 LOAD DATA KODE KEGIATAN
+  loadKodeKegiatan();
+});
+
+
+      
     /* =============================================================
       10️⃣ HANDLE SUBMIT FORM (MODIFIKASI PENGGUNAAN NOTIFIKASI)
       ============================================================= */
