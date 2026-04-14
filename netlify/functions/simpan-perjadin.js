@@ -75,40 +75,44 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Sisa anggaran tidak mencukupi' }) };
     }
 
-   // Ganti bagian insert di simpan-perjadin.js Anda:
+    /* =====================================================
+       3️⃣ INSERT SEMUA PEGAWAI (id_perjadin SAMA)
+       ===================================================== */
+    const insertSQL = `
+      INSERT INTO ajukanperjadin
+      (id_perjadin, email_user, nama, golongan, jabatan,
+       tujuan, maksud, tanggal_berangkat, tanggal_pulang,
+       lama_perjalanan, kendaraan, pj_kegiatan, pj_subkegiatan,
+       kode_kegiatan, rencanabiaya, urlbiaya, urldatadukung)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-/* =====================================================
-   3️⃣ BULK INSERT SEMUA PEGAWAI (LEBIH CEPAT)
-   ===================================================== */
-const insertSQL = `
-  INSERT INTO ajukanperjadin 
-  (id_perjadin, email_user, nama, golongan, jabatan, 
-   tujuan, maksud, tanggal_berangkat, tanggal_pulang, 
-   lama_perjalanan, kendaraan, pj_kegiatan, 
-   kode_kegiatan, rencanabiaya, urlbiaya, urldatadukung) 
-  VALUES ?`;
+    let rowsInserted = 0;
 
-const values = allPegawai.map(p => [
-  id_perjadin, 
-  email_user, 
-  p.nama, 
-  p.golongan, 
-  p.jabatan,
-  tujuan, 
-  maksud, 
-  tanggal_berangkat, 
-  tanggal_pulang, 
-  lama_perjalanan, 
-  kendaraan, 
-  pj_kegiatan, 
-  kode_kegiatan, 
-  rencanaBiaya, 
-  urlbiaya, 
-  urldatadukung
-]);
+    for (const pegawai of allPegawai) {
+      const values = [
+        id_perjadin,
+        email_user,
+        pegawai.nama || null,
+        pegawai.golongan || null,
+        pegawai.jabatan || null,
+        tujuan || null,
+        maksud || null,
+        tanggal_berangkat || null,
+        tanggal_pulang || null,
+        lama_perjalanan || null,
+        kendaraan || null,
+        pj_kegiatan || null,
+        pj_subkegiatan || null,
+        kode_kegiatan,
+        rencanaBiaya,
+        urlbiaya || null,
+        urldatadukung || null
+      ];
 
-// Jalankan satu kali query untuk semua data
-await conn.query(insertSQL, [values]);
+      const [resInsert] = await conn.execute(insertSQL, values);
+      rowsInserted += resInsert.affectedRows || 0;
+    }
 
     /* =====================================================
        4️⃣ UPDATE ANGGARAN
