@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ajukan E-Perjadin</title>
 
-  <!-- ORIGINAL -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css" />
   <link rel="stylesheet" href="e-perjadin.css" />
-
-  <!-- 🔥 SELECT2 -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 
@@ -30,7 +27,6 @@
     <img src="img/Logo-Kementan.png" alt="Logo" />
     BRMP PERKEBUNAN
   </a>
-
   <nav class="navbar-nav">
     <span id="userDisplay"></span>
     <a href="dashboard.html" class="dashboard-btn">⬅️ Dashboard</a>
@@ -41,45 +37,24 @@
   <h2 class="form-title">Ajukan E-Perjadin 📝</h2>
 
   <form id="perjadinForm">
-
     <h3>Data Pegawai</h3>
-
     <div id="pegawaiWrapper">
       <div class="pegawai-group">
-
         <label>Nama Pegawai</label>
-        <!-- 🔥 UBAH KE SELECT2 -->
         <select class="nama-select-field" name="nama[]" required style="width:100%"></select>
 
         <label>Golongan</label>
-        <select class="golongan-select-field" name="golongan[]" required>
-          <option value="">-- Pilih Golongan --</option>
-          <option value="Golongan IIa">IIa / 2a</option>
-          <option value="Golongan IIb">IIb / 2b</option>
-          <option value="Golongan IIc">IIc / 2c</option>
-          <option value="Golongan IId">IId / 2d</option>
-          <option value="Golongan IIIa">IIIa / 3a</option>
-          <option value="Golongan IIIb">IIIb / 3b</option>
-          <option value="Golongan IIIc">IIIc / 3c</option>
-          <option value="Golongan IIId">IIId / 3d</option>
-          <option value="Golongan IVa">IVa / 4a</option>
-          <option value="Golongan IVb">IVb / 4b</option>
-          <option value="Golongan IVc">IVc / 4c</option>
-          <option value="Golongan IVd">IVd / 4d</option>
-        </select>
+        <input type="text" class="golongan-select-field" name="golongan[]" readonly placeholder="Otomatis..." required style="background: #f4f4f4;" />
 
         <label>Jabatan</label>
-        <input type="text" class="jabatan-input-field" name="jabatan[]" required />
-
+        <input type="text" class="jabatan-input-field" name="jabatan[]" readonly placeholder="Otomatis..." required style="background: #f4f4f4;" />
       </div>
     </div>
 
     <button type="button" id="addPegawaiBtn">➕ Tambah Pegawai</button>
 
     <hr />
-
     <h3>Detail Perjalanan Dinas</h3>
-
     <label>Tujuan</label>
     <input type="text" id="tujuan" required />
 
@@ -99,7 +74,6 @@
     <input type="text" id="kendaraan" />
 
     <hr />
-
     <label>Kode Kegiatan</label>
     <select id="kodeKegiatan"></select>
 
@@ -110,19 +84,16 @@
     <input type="text" id="rencanaBiayaTotal" />
 
     <button type="submit" id="submitBtn">💾 Simpan</button>
-
   </form>
 </main>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-
 /* =========================
-   SELECT2 PEGAWAI
+   SELECT2 PEGAWAI (FIXED)
 ========================= */
 function initSelectPegawai(el) {
   $(el).select2({
@@ -130,110 +101,80 @@ function initSelectPegawai(el) {
     minimumInputLength: 1,
     allowClear: true,
     ajax: {
-      url: "/.netlify/functions/pegawai_bun", // 💡 Pastikan nama file di folder functions adalah pegawai_bun.js
+      url: "/.netlify/functions/pegawai_bun",
       type: "POST",
       dataType: 'json',
       contentType: "application/json",
       delay: 250,
-      data: function (params) {
-        return JSON.stringify({
-          search: params.term, // Kata kunci pencarian
-          page: 1,
-          limit: 10
-        });
-      },
-      processResults: function (data) {
-        console.log("Data dari server:", data); // 💡 CEK DI CONSOLE F12
-        
-        // Pastikan data.rows ada (sesuai backend Anda)
+      data: params => JSON.stringify({ search: params.term || "", page: 1, limit: 10 }),
+      processResults: data => {
         if (!data.rows) return { results: [] };
-
         return {
           results: data.rows.map(item => ({
-            id: item.nama_pegawai,   // Ini yang akan disimpan di value select
-            text: item.nama_pegawai, // Ini yang tampil di dropdown
+            id: item.nama_pegawai,
+            text: item.nama_pegawai,
             jabatan: item.jabatan,
             golongan: item.golongan
           }))
         };
-      },
-      cache: true
+      }
     }
   });
 
-  // Event saat nama dipilih
   $(el).on("select2:select", function (e) {
     const data = e.params.data;
     const group = this.closest(".pegawai-group");
 
-    // Isi otomatis field lainnya
-    const jabatanField = group.querySelector(".jabatan-input-field");
-    const golonganField = group.querySelector(".golongan-select-field");
-
-    if (jabatanField) jabatanField.value = data.jabatan || "";
-    if (golonganField) {
-        golonganField.value = data.golongan;
-        // Trigger change agar jika ada validasi lain ikut terbaca
-        $(golonganField).trigger('change'); 
-    }
+    // 🔥 Mengisi field otomatis
+    group.querySelector(".jabatan-input-field").value = data.jabatan || "-";
+    group.querySelector(".golongan-select-field").value = data.golongan || "-";
   });
 }
 
-/* INIT */
+/* INIT LOAD */
 document.addEventListener("DOMContentLoaded", () => {
-
-  document.querySelectorAll(".nama-select-field").forEach(el => {
-    initSelectPegawai(el);
-  });
-
+  document.querySelectorAll(".nama-select-field").forEach(el => initSelectPegawai(el));
+  
+  // Flatpickr & Hitung Hari
+  const fpB = flatpickr("#tanggalBerangkat", { onChange: hitungLama });
+  const fpP = flatpickr("#tanggalPulang", { onChange: hitungLama });
 });
 
-/* TAMBAH PEGAWAI */
-document.getElementById("addPegawaiBtn").addEventListener("click", () => {
+function hitungLama() {
+  const t1 = new Date(document.getElementById("tanggalBerangkat").value);
+  const t2 = new Date(document.getElementById("tanggalPulang").value);
+  if (t1 && t2 && t2 >= t1) {
+    const diff = Math.ceil((t2 - t1) / (1000 * 60 * 60 * 24)) + 1;
+    document.getElementById("lamaPerjalanan").value = diff + " Hari";
+  }
+}
 
+/* TAMBAH BARIS PEGAWAI */
+document.getElementById("addPegawaiBtn").addEventListener("click", () => {
   const div = document.createElement("div");
   div.className = "pegawai-group";
-
+  div.style.marginTop = "15px";
   div.innerHTML = `
-    <hr>
+    <hr style="border-top: 1px dashed #ccc;">
     <label>Nama Pegawai</label>
     <select class="nama-select-field" name="nama[]" required style="width:100%"></select>
-
     <label>Golongan</label>
-    <select class="golongan-select-field" name="golongan[]" required>
-      <option value="">-- Pilih Golongan --</option>
-      <option value="Golongan IIIa">IIIa</option>
-      <option value="Golongan IIIb">IIIb</option>
-      <option value="Golongan IVa">IVa</option>
-    </select>
-
+    <input type="text" class="golongan-select-field" name="golongan[]" readonly placeholder="Otomatis..." required style="background: #f4f4f4;" />
     <label>Jabatan</label>
-    <input type="text" class="jabatan-input-field" name="jabatan[]" required />
+    <input type="text" class="jabatan-input-field" name="jabatan[]" readonly placeholder="Otomatis..." required style="background: #f4f4f4;" />
   `;
-
   document.getElementById("pegawaiWrapper").appendChild(div);
-
   initSelectPegawai(div.querySelector(".nama-select-field"));
 });
 
-/* SUBMIT */
+/* SUBMIT FORM */
 document.getElementById("perjadinForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+  const names = [...document.querySelectorAll(".nama-select-field")].map(el => el.value);
+  const gol = [...document.querySelectorAll(".golongan-select-field")].map(el => el.value);
+  const jab = [...document.querySelectorAll(".jabatan-input-field")].map(el => el.value);
 
-  const names = [...document.querySelectorAll(".nama-select-field")]
-    .map(el => el.value);
-
-  const gol = [...document.querySelectorAll(".golongan-select-field")]
-    .map(el => el.value);
-
-  const jab = [...document.querySelectorAll(".jabatan-input-field")]
-    .map(el => el.value);
-
-  const allPegawai = names.map((n, i) => ({
-    nama: n,
-    golongan: gol[i],
-    jabatan: jab[i]
-  }));
+  const allPegawai = names.map((n, i) => ({ nama: n, golongan: gol[i], jabatan: jab[i] }));
 
   const body = {
     email_user: localStorage.getItem("loggedInUser"),
@@ -244,7 +185,6 @@ document.getElementById("perjadinForm").addEventListener("submit", async (e) => 
     tanggal_pulang: document.getElementById("tanggalPulang").value,
     lama_perjalanan: document.getElementById("lamaPerjalanan").value,
     kendaraan: document.getElementById("kendaraan").value,
-    rencanabiaya: 0,
     kode_kegiatan: document.getElementById("kodeKegiatan").value
   };
 
@@ -253,13 +193,10 @@ document.getElementById("perjadinForm").addEventListener("submit", async (e) => 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
-
   const result = await res.json();
-
   alert(result.message);
+  if(result.success) location.reload();
 });
-
 </script>
-
 </body>
 </html>
