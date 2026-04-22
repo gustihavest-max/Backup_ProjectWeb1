@@ -152,7 +152,8 @@ const exportToExcel = async (groupData) => {
       //  BAGIAN 1 → Data tunggal
       // =======================
       ws.getCell('E24').value = mainRow.tujuan;
-      ws.getCell('E28').value = formatDateRange(mainRow.tanggal_berangkat, mainRow.tanggal_pulang);
+      ws.getCell('E28').value = new Date(mainRow.tanggal_berangkat).toLocaleDateString('id-ID');
+      ws.getCell('H28').value = new Date(mainRow.tanggal_pulang).toLocaleDateString('id-ID');
       ws.getCell('H37').value = mainRow.pj_kegiatan;
       ws.getCell('E25').value = mainRow.maksud;
       ws.getCell('N3').value = mainRow.email_user;
@@ -165,28 +166,30 @@ const exportToExcel = async (groupData) => {
       //  TANPA insertRows, TANPA copy style
       // =====================================
 
-      const START_ROW = 15;    // row untuk pegawai pertama
-      const MAX_ROWS  = 23;    // range akhir template
+      const START_ROW = 14;    // row untuk pegawai pertama
+      const MAX_ROWS  = 22;    // range akhir template
       const MAX_COUNT = MAX_ROWS - START_ROW + 1; // total slot tersedia (9)
 
       // clear slot kosong dulu
       for (let r = START_ROW; r <= MAX_ROWS; r++) {
-        ws.getCell(`B${r}`).value = null; // nama
-        ws.getCell(`D${r}`).value = null; // golongan
-        ws.getCell(`E${r}`).value = null; // jabatan (ingat: jabatan di kolom E → B=2, D=4, E=5)
-      }
+  ws.getCell(`B${r}`).value = null; // No
+  ws.getCell(`C${r}`).value = null; // Nama
+  ws.getCell(`F${r}`).value = null; // Jabatan
+  ws.getCell(`I${r}`).value = null; // Golongan
+}
+
 
       // isi sesuai jumlah pegawai
       pegawaiList.forEach((pegawai, index) => {
-        const row = START_ROW + index;
+  const row = START_ROW + index;
+  if (row > MAX_ROWS) return;
 
-        // Safety guard, kalau lebih dari slot template
-        if (row > MAX_ROWS) return;
+  ws.getCell(`B${row}`).value = index + 1; // No
+  ws.getCell(`C${row}`).value = pegawai.nama;
+  ws.getCell(`F${row}`).value = pegawai.jabatan;
+  ws.getCell(`I${row}`).value = pegawai.golongan;
+});
 
-        ws.getCell(`B${row}`).value = pegawai.nama;
-        ws.getCell(`D${row}`).value = pegawai.golongan;
-        ws.getCell(`E${row}`).value = pegawai.jabatan;
-      });
 
       // ========================
       //  BAGIAN 3 → Download file
