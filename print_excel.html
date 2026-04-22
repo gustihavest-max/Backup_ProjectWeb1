@@ -156,10 +156,10 @@ const exportToExcel = async (groupData) => {
       ws.getCell('H28').value = new Date(mainRow.tanggal_pulang).toLocaleDateString('id-ID');
       ws.getCell('H37').value = mainRow.pj_kegiatan;
       ws.getCell('E25').value = mainRow.maksud;
-      ws.getCell('N3').value = mainRow.email_user;
-      ws.getCell('N2').value = new Date(mainRow.created_at).toLocaleString();
+      ws.getCell('O1').value = mainRow.email_user;
+      ws.getCell('O2').value = new Date(mainRow.created_at).toLocaleString();
       ws.getCell('E27').value = mainRow.lama_perjalanan;
-      ws.getCell('F43').value = mainRow.rencanabiaya;
+      ws.getCell('F45').value = mainRow.rencanabiaya;
 
       // =====================================
       //  BAGIAN 2 → Isi tabel pegawai B15–E23
