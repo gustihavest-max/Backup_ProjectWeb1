@@ -1,0 +1,146 @@
+:root {
+  --primary: #4CAF50;
+  --accent: #17bd96;
+  --text: #333;
+  --bg: #f0f2f5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url('img/bg_perjadin.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CONTAINER */
+.container {
+  width: 100%;
+  max-width: 1100px;
+  padding: 30px;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 45px;
+  color: #ffffff;
+}
+
+.header h1 {
+  font-size: 2em;
+  font-weight: 725;
+  color: #305cdf;
+}
+
+.header p {
+  opacity: 0.85;
+  margin-top: 8px;
+}
+
+/* CARD GRID */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+/* CARD */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+}
+
+/* ICON */
+.card-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 15px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.4em;
+}
+
+.card-icon.brmp {
+  background: linear-gradient(135deg, #4CAF50, #17bd96);
+}
+
+.card-icon.luar {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+}
+
+.card-icon.non {
+  background: linear-gradient(135deg, #9E9E9E, #607D8B);
+}
+
+/* TEXT */
+.card h3 {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.card p {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* BUTTON */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: 0.25s;
+}
+
+.btn:hover {
+  background: #388E3C;
+  gap: 15px;
+}
+
+/* BACK */
+.back {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.back a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.2em;
+  opacity: 0.9;
+}
+
+.back a:hover {
+  opacity: 1;
+  font-size: 1.4em;
+}
