@@ -12,7 +12,9 @@ exports.handler = async (event) => {
   try {
     const { page = 1, limit = 10, search = "" } = JSON.parse(event.body || "{}");
 
-    const offset = (page - 1) * limit;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
 
     let query = `
       SELECT nip, nama_pegawai, jabatan, golongan
@@ -24,17 +26,17 @@ exports.handler = async (event) => {
     let params = [];
     let countParams = [];
 
-    /* ===== SEARCH ===== */
+    /* 🔍 SEARCH */
     if (search) {
       query += `
-        WHERE nip LIKE ? 
-        OR nama_pegawai LIKE ? 
+        WHERE nip LIKE ?
+        OR nama_pegawai LIKE ?
         OR jabatan LIKE ?
       `;
 
       countQuery += `
-        WHERE nip LIKE ? 
-        OR nama_pegawai LIKE ? 
+        WHERE nip LIKE ?
+        OR nama_pegawai LIKE ?
         OR jabatan LIKE ?
       `;
 
@@ -43,31 +45,28 @@ exports.handler = async (event) => {
       countParams.push(keyword, keyword, keyword);
     }
 
-    /* ❗ FIX DISINI */
-    query += ` ORDER BY nama_pegawai ASC LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+    /* 🔥 PAKAI STRING LANGSUNG (AMAN & SIMPLE) */
+    query += ` ORDER BY nama_pegawai ASC LIMIT ${limitNum} OFFSET ${offset}`;
 
     const [rows] = await pool.execute(query, params);
-
     const [countResult] = await pool.execute(countQuery, countParams);
 
     const total = countResult[0].total;
-    const totalPages = Math.ceil(total / limit);
-
-    console.log("TOTAL:", total, "ROWS:", rows.length);
+    const totalPages = Math.ceil(total / limitNum);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
         rows,
-        page: parseInt(page),
+        page: pageNum,
         totalPages,
         totalData: total
       }),
     };
 
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error pegawai_bun:', err);
 
     return {
       statusCode: 500,

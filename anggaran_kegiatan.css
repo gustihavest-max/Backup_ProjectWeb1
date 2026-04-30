@@ -309,6 +309,21 @@ tbody tr:hover {
     transition: opacity 0.3s ease;
 }
 
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.btn-delete:hover {
+    background-color: #bb2d3b;
+}
+
+
 .success {
     background-color: #d1fae5; /* Tailwind green-100 */
     border: 1px solid #10b981; 
