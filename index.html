@@ -7,7 +7,9 @@
   <!-- Tautan ke file CSS yang terpisah -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
+ 
+ //CSS
+ <style>
     /* tambahan styling untuk ikon mata */
     .input-field {
       position: relative;
@@ -39,6 +41,8 @@
     .message-box.success {color: green;}
     .message-box.error {color: red;}
   </style>
+
+  
 </head>
 <body>
   <div class="login-container">
@@ -78,19 +82,17 @@
             <input type="checkbox" id="remember">
             <label for="remember">Ingat Saya</label>
           </div>
-          <a href="#" class="forgot-password">Lupa Password?</a>
+          <a href="###" class="forgot-password">Lupa Password?</a>
         </div>
         <button type="submit" class="login-button" id="loginButton">Login</button>
       </form>
       <div id="message-box" class="message-box"></div>
       <div class="social-login">
       </div>
-      <div class="register-link">
-        Belum punya akun? <a href="register.html">Daftar Sekarang (Disable)</a>
-      </div>
     </div>
   </div>
 
+  //JS 
   <!-- Script -->
   <script>
   const form = document.querySelector('.login-form');
