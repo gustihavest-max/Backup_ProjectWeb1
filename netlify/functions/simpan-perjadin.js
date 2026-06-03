@@ -82,7 +82,7 @@ exports.handler = async (event) => {
       INSERT INTO ajukanperjadin
       (id_perjadin, email_user, nama, golongan, jabatan,
        tujuan, maksud, tanggal_berangkat, tanggal_pulang,
-       lama_perjalanan, kendaraan, pj_kegiatan, pj_subkegiatan,
+       lama_perjalanan, kendaraan, pj_kegiatan,
        kode_kegiatan, rencanabiaya, urlbiaya, urldatadukung)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
