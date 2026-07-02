@@ -23,7 +23,6 @@ exports.handler = async (event) => {
     lama_perjalanan,
     kendaraan,
     pj_kegiatan,
-    pj_subkegiatan,
     urlbiaya,
     urldatadukung,
     rencanabiaya,
@@ -82,9 +81,9 @@ exports.handler = async (event) => {
       INSERT INTO ajukanperjadin
       (id_perjadin, email_user, nama, golongan, jabatan,
        tujuan, maksud, tanggal_berangkat, tanggal_pulang,
-       lama_perjalanan, kendaraan, pj_kegiatan, pj_subkegiatan,
+       lama_perjalanan, kendaraan, pj_kegiatan,
        kode_kegiatan, rencanabiaya, urlbiaya, urldatadukung)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     let rowsInserted = 0;
@@ -103,7 +102,6 @@ exports.handler = async (event) => {
         lama_perjalanan || null,
         kendaraan || null,
         pj_kegiatan || null,
-        pj_subkegiatan || null,
         kode_kegiatan,
         rencanaBiaya,
         urlbiaya || null,
