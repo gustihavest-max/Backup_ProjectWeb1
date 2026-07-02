@@ -24,7 +24,6 @@ exports.handler = async (event) => {
         lama_perjalanan,
         kendaraan,
         pj_kegiatan,
-        pj_subkegiatan,
         rencanabiaya,
         urlbiaya,
         urldatadukung,
