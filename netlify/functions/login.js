@@ -1,6 +1,6 @@
-const pool = require('./db');
+import pool from './db.js'; // Jangan lupa tambahkan ekstensi .js
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
