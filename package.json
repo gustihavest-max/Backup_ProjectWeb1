@@ -1,7 +1,7 @@
 {
   "name": "perjadin-app",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "mysql2": "^3.9.7",
     "exceljs": "^4.4.0",
