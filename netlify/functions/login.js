@@ -1,4 +1,3 @@
-// login.js
 const pool = require('./db');
 
 exports.handler = async (event) => {
