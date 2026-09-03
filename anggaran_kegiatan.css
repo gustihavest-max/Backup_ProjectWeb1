@@ -11,15 +11,13 @@ html, body {
     GLOBAL STYLE
 ========================================================= */
 body {
-  font-family: "Segoe UI", sans-serif;
-  margin: 0;
-
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
     min-height: 100vh;
     padding-bottom: 50px; 
-
-  background:  url("img/psip-bun.jpeg") center/cover no-repeat fixed;
-  background-size: cover;
-  color: #333;
+    background: url("img/psip-bun.jpeg") center/cover no-repeat fixed;
+    background-size: cover;
+    color: #333;
 }
 
 /* Right-align numeric columns */
@@ -79,7 +77,7 @@ body {
 }
 
 /* =========================================================
-    PAGE HEADER
+    PAGE HEADER & ACTION BAR
 ========================================================= */
 .page-header {
     text-align: center;
@@ -87,11 +85,19 @@ body {
     padding: 20px 0;
 }
 
+.action-bar {
+    width: 90%;
+    margin: 0 auto 15px auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 /* =========================================================
     TABLE WRAPPER
 ========================================================= */
 .table-wrapper {
-    width: 90%; /* MODIFIKASI: Mengubah lebar menjadi 90% */
+    width: 90%;
     margin: 0 auto;
     background: white;
     border-radius: 12px;
@@ -141,6 +147,28 @@ tbody tr:hover {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.primary-btn:hover {
+    background-color: #0b5ed7;
+}
+
+.info-btn {
+    background-color: #17a2b8;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.info-btn:hover {
+    background-color: #138496;
+    transform: translateY(-1px);
 }
 
 .secondary-btn {
@@ -150,20 +178,48 @@ tbody tr:hover {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+}
+
+.secondary-btn:hover {
+    background-color: #5c636a;
 }
 
 .btn-edit {
     background-color: #ffc107;
     color: #333;
     padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 8px;
     font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .btn-edit:hover {
-    background-color: #e0a800;
+    background-color: #ffca2c;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px;
+    font-weight: 600;
+}
+
+.btn-delete:hover {
+    background-color: #bb2d3b;
+}
+
+.btn-group-right {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
 }
 
 /* =========================================================
@@ -183,13 +239,22 @@ tbody tr:hover {
 .modal-content input[type="number"],
 .modal-content textarea {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    transition: 0.15s ease;
+    box-sizing: border-box;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+    border-color: #0b7b2e;
+    box-shadow: 0 0 0 3px rgba(11,123,46,0.25);
+    outline: none;
 }
 
 /* =========================================================
-    LOADER & STATUS MESSAGE
+    LOAder & STATUS MESSAGE
 ========================================================= */
 .loader {
     border: 5px solid #f3f3f3;
@@ -209,22 +274,23 @@ tbody tr:hover {
 #statusMessage {
     width: 95%;
     margin: 10px auto;
-    padding: 15px;
-    border-radius: 8px;
+    padding: 14px 18px;
+    border-radius: 10px;
     text-align: center;
     font-weight: 600;
+    transition: opacity 0.3s ease;
 }
 
 .success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
+    background-color: #d1fae5;
+    border: 1px solid #10b981; 
+    color: #065f46;
 }
 
 .error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
+    background-color: #fee2e2;
+    border: 1px solid #ef4444;
+    color: #7f1d1d;
 }
 
 .hidden { display: none; }
@@ -234,15 +300,14 @@ tbody tr:hover {
 ========================================================= */
 .modal {
     position: fixed;
-    inset: 0;  /* ADD: shorthand top/left/right/bottom */
-    background-color: rgba(0,0,0,0.45); /* EDIT: lebih soft */
+    inset: 0;
+    background-color: rgba(0,0,0,0.45);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 200;
-    backdrop-filter: blur(3px); /* ADD: efek blur modern */
+    backdrop-filter: blur(3px);
 }
-
 
 .modal.show {
     display: flex;
@@ -253,11 +318,17 @@ tbody tr:hover {
     width: 500px;
     max-height: 90vh;
     padding: 25px;
-    border-radius: 15px; /* EDIT: rounded lebih modern */
+    border-radius: 15px;
     overflow-y: auto;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15); /* ADD */
-    animation: popup 0.22s ease-out; /* ADD */
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    animation: popup 0.22s ease-out;
 }
+
+.modal-content.modal-lg {
+    width: 850px;
+    max-width: 95vw;
+}
+
 @keyframes popup {
     from {
         opacity: 0;
@@ -268,70 +339,11 @@ tbody tr:hover {
         transform: scale(1);
     }
 }
-.modal-content input[type="text"],
-.modal-content input[type="number"],
-.modal-content textarea {
-    width: 100%;
-    padding: 10px 12px;      /* EDIT */
-    border: 1px solid #d1d5db; /* EDIT (mirip Tailwind gray-300) */
-    border-radius: 8px;      /* EDIT */
-    transition: 0.15s ease;  /* ADD: smooth focus */
-}
 
-.modal-content input:focus,
-.modal-content textarea:focus {
-    border-color: #0b7b2e;   /* ADD */
-    box-shadow: 0 0 0 3px rgba(11,123,46,0.25); /* ADD: tailwind-like ring */
-    outline: none;
-}
-.btn-edit {
-    background-color: #ffc107;
-    color: #333;
-    padding: 6px 12px;
-    border-radius: 8px;        /* EDIT */
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-edit:hover {
-    background-color: #ffca2c; /* EDIT */
-    transform: translateY(-1px); /* ADD */
-}
-#statusMessage {
-    width: 95%;
-    margin: 10px auto;
-    padding: 14px 18px; /* EDIT */
-    border-radius: 10px;
-    text-align: center;
-    font-weight: 600;
-    transition: opacity 0.3s ease;
-}
-
-.btn-delete {
-    background-color: #dc3545;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    margin-left: 5px;
-}
-
-.btn-delete:hover {
-    background-color: #bb2d3b;
-}
-
-
-.success {
-    background-color: #d1fae5; /* Tailwind green-100 */
-    border: 1px solid #10b981; 
-    color: #065f46;
-}
-
-.error {
-    background-color: #fee2e2; /* Tailwind red-100 */
-    border: 1px solid #ef4444;
-    color: #7f1d1d;
+.table-wrapper-modal {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }

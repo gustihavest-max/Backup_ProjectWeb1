@@ -15,7 +15,7 @@
 <!-- ✅ NAVBAR BALIK -->
 <header class="navbar">
     <div class="navbar-left">
-        <img src="img/Logo-Kementan.png">
+        <img src="img/Logo-Kementan.png" alt="Logo Kementan">
         <a href="https://perkebunan.brmp.pertanian.go.id/" class="navbar-title">
             BRMP PERKEBUNAN
         </a>
@@ -31,87 +31,134 @@
     <h1>💸 Manajemen Anggaran Kegiatan</h1>
 </div>
 
-<!-- BUTTON TAMBAH -->
-<div style="width:90%; margin:auto;">
+<!-- BUTTON AREA (TAMBAH DATA & RIWAYAT REVISI DIPA) -->
+<div class="action-bar">
     <button id="btnTambah" class="primary-btn">➕ Tambah Data</button>
+    <button id="btnRiwayat" class="info-btn" onclick="openRiwayat()">📜 Riwayat Revisi DIPA</button>
 </div>
 
-<!-- TABLE -->
+<!-- TABLE ANGGARAN -->
 <div class="table-wrapper">
-<table>
-<thead>
-<tr>
-<th>No</th>
-<th>Kode Kegiatan</th>
-<th>Pagu</th>
-<th>Digunakan</th>
-<th>Sisa</th>
-<th>PJ</th>
-<th>Uraian</th>
-<th>Aksi</th>
-</tr>
-</thead>
-
-<tbody id="tabelAnggaran"></tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Kode Kegiatan</th>
+                <th>Pagu</th>
+                <th>Digunakan</th>
+                <th>Sisa</th>
+                <th>PJ</th>
+                <th>Uraian</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="tabelAnggaran"></tbody>
+    </table>
 </div>
 
 <!-- ================= MODAL TAMBAH ================= -->
 <div id="modalTambah" class="modal">
-<div class="modal-content">
-<h3>Tambah Data</h3>
+    <div class="modal-content">
+        <h3>Tambah Data</h3>
 
-<form id="formTambah">
-<div class="form-group">
-<label>Kode</label>
-<input id="add_kode" required>
-</div>
+        <form id="formTambah">
+            <div class="form-group">
+                <label>Kode</label>
+                <input id="add_kode" required>
+            </div>
 
-<div class="form-group">
-<label>Pagu</label>
-<input type="number" id="add_pagu" required>
-</div>
+            <div class="form-group">
+                <label>Pagu</label>
+                <input type="number" id="add_pagu" required>
+            </div>
 
-<div class="form-group">
-<label>Digunakan</label>
-<input type="number" id="add_digunakan">
-</div>
+            <div class="form-group">
+                <label>Digunakan</label>
+                <input type="number" id="add_digunakan">
+            </div>
 
-<div class="form-group">
-<label>PJ</label>
-<input id="add_pj" required>
-</div>
+            <div class="form-group">
+                <label>PJ</label>
+                <input id="add_pj" required>
+            </div>
 
-<div class="form-group">
-<label>Uraian</label>
-<textarea id="add_uraian"></textarea>
-</div>
+            <div class="form-group">
+                <label>Uraian</label>
+                <textarea id="add_uraian"></textarea>
+            </div>
 
-<button type="submit" class="primary-btn">Simpan</button>
-<button type="button" class="secondary-btn" onclick="closeTambah()">Batal</button>
-</form>
-
-</div>
+            <div class="btn-group-right">
+                <button type="submit" class="primary-btn">Simpan</button>
+                <button type="button" class="secondary-btn" onclick="closeTambah()">Batal</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- ================= MODAL EDIT ================= -->
 <div id="modalEdit" class="modal">
-<div class="modal-content">
-<h3>Edit Data</h3>
+    <div class="modal-content">
+        <h3>Edit Data</h3>
 
-<form id="formEdit">
-<input id="edit_kode" disabled>
+        <form id="formEdit">
+            <div class="form-group">
+                <label>Kode Kegiatan</label>
+                <input id="edit_kode" disabled>
+            </div>
 
-<input type="number" id="edit_pagu">
-<input type="number" id="edit_digunakan">
-<input id="edit_pj">
-<textarea id="edit_uraian"></textarea>
+            <div class="form-group">
+                <label>Pagu</label>
+                <input type="number" id="edit_pagu">
+            </div>
 
-<button type="submit" class="primary-btn">Update</button>
-<button type="button" class="secondary-btn" onclick="closeEdit()">Batal</button>
-</form>
+            <div class="form-group">
+                <label>Digunakan</label>
+                <input type="number" id="edit_digunakan">
+            </div>
 
+            <div class="form-group">
+                <label>PJ</label>
+                <input id="edit_pj">
+            </div>
+
+            <div class="form-group">
+                <label>Uraian</label>
+                <textarea id="edit_uraian"></textarea>
+            </div>
+
+            <div class="btn-group-right">
+                <button type="submit" class="primary-btn">Update</button>
+                <button type="button" class="secondary-btn" onclick="closeEdit()">Batal</button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<!-- ================= MODAL RIWAYAT REVISI DIPA ================= -->
+<div id="modalRiwayat" class="modal">
+    <div class="modal-content modal-lg">
+        <h3>📜 Riwayat Revisi DIPA Anggaran</h3>
+
+        <div class="table-wrapper-modal">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal Revisi</th>
+                        <th>Kode Kegiatan</th>
+                        <th>Pagu Sebelum</th>
+                        <th>Pagu Sesudah</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelRiwayat"></tbody>
+            </table>
+        </div>
+
+        <div class="btn-group-right" style="margin-top: 15px;">
+            <button type="button" class="secondary-btn" onclick="closeRiwayat()">Tutup</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -119,117 +166,170 @@ const API = "/.netlify/functions/anggaran";
 const tbody = document.getElementById("tabelAnggaran");
 
 /* ================= API ================= */
-async function api(action,data={}){
-    const res = await fetch(API,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action,...data})
+async function api(action, data = {}) {
+    const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...data })
     });
     return res.json();
 }
 
-/* ================= LOAD ================= */
-async function loadData(){
-    const res = await api("getAll");
+/* ================= LOAD DATA UTAMA ================= */
+async function loadData() {
+    try {
+        const res = await api("getAll");
 
-    tbody.innerHTML = res.data.map((d,i)=>`
-    <tr>
-        <td>${i+1}</td>
-        <td>${d.kode_kegiatan}</td>
-        <td class="numeric">${format(d.pagu_anggaran)}</td>
-        <td class="numeric">${format(d.anggaran_digunakan)}</td>
-        <td class="numeric">${format(d.sisa_anggaran)}</td>
-        <td>${d.pj_kegiatan}</td>
-        <td>${d.uraian_kegiatan}</td>
-        <td>
-            <button class="btn-edit" onclick="openEdit('${d.kode_kegiatan}')">Edit</button>
-            <button class="btn-delete" onclick="hapus('${d.kode_kegiatan}')">Hapus</button>
-        </td>
-    </tr>
-    `).join("");
+        tbody.innerHTML = res.data.map((d, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td>${d.kode_kegiatan}</td>
+            <td class="numeric">${format(d.pagu_anggaran)}</td>
+            <td class="numeric">${format(d.anggaran_digunakan)}</td>
+            <td class="numeric">${format(d.sisa_anggaran)}</td>
+            <td>${d.pj_kegiatan}</td>
+            <td>${d.uraian_kegiatan}</td>
+            <td>
+                <button class="btn-edit" onclick="openEdit('${d.kode_kegiatan}')">Edit</button>
+                <button class="btn-delete" onclick="hapus('${d.kode_kegiatan}')">Hapus</button>
+            </td>
+        </tr>
+        `).join("");
+    } catch (err) {
+        console.error("Gagal memuat data:", err);
+    }
 }
 
 /* ================= FORMAT ================= */
-function format(num){
-    return new Intl.NumberFormat("id-ID").format(num);
+function format(num) {
+    return new Intl.NumberFormat("id-ID").format(num || 0);
 }
 
 /* ================= TAMBAH ================= */
-btnTambah.onclick = ()=> modalTambah.classList.add("show");
+const btnTambah = document.getElementById("btnTambah");
+const modalTambah = document.getElementById("modalTambah");
+const formTambah = document.getElementById("formTambah");
 
-function closeTambah(){
+btnTambah.onclick = () => modalTambah.classList.add("show");
+
+function closeTambah() {
     modalTambah.classList.remove("show");
+    formTambah.reset();
 }
 
-formTambah.onsubmit = async(e)=>{
+formTambah.onsubmit = async (e) => {
     e.preventDefault();
 
-    const data={
-        kode_kegiatan:add_kode.value,
-        pagu_anggaran:+add_pagu.value,
-        anggaran_digunakan:+add_digunakan.value||0,
-        pj_kegiatan:add_pj.value,
-        uraian_kegiatan:add_uraian.value
+    const data = {
+        kode_kegiatan: document.getElementById("add_kode").value,
+        pagu_anggaran: +document.getElementById("add_pagu").value,
+        anggaran_digunakan: +document.getElementById("add_digunakan").value || 0,
+        pj_kegiatan: document.getElementById("add_pj").value,
+        uraian_kegiatan: document.getElementById("add_uraian").value
     };
 
-    const res = await api("insert",data);
-    Swal.fire("Sukses",res.message,"success");
+    const res = await api("insert", data);
+    Swal.fire("Sukses", res.message, "success");
 
     closeTambah();
     loadData();
 };
 
 /* ================= EDIT ================= */
-async function openEdit(kode){
-    const res = await api("getByKode",{kode_kegiatan:kode});
+const modalEdit = document.getElementById("modalEdit");
+const formEdit = document.getElementById("formEdit");
+
+async function openEdit(kode) {
+    const res = await api("getByKode", { kode_kegiatan: kode });
     const d = res.data;
 
-    edit_kode.value=d.kode_kegiatan;
-    edit_pagu.value=d.pagu_anggaran;
-    edit_digunakan.value=d.anggaran_digunakan;
-    edit_pj.value=d.pj_kegiatan;
-    edit_uraian.value=d.uraian_kegiatan;
+    document.getElementById("edit_kode").value = d.kode_kegiatan;
+    document.getElementById("edit_pagu").value = d.pagu_anggaran;
+    document.getElementById("edit_digunakan").value = d.anggaran_digunakan;
+    document.getElementById("edit_pj").value = d.pj_kegiatan;
+    document.getElementById("edit_uraian").value = d.uraian_kegiatan;
 
     modalEdit.classList.add("show");
 }
 
-function closeEdit(){
+function closeEdit() {
     modalEdit.classList.remove("show");
 }
 
-formEdit.onsubmit = async(e)=>{
+formEdit.onsubmit = async (e) => {
     e.preventDefault();
 
-    const data={
-        kode_kegiatan:edit_kode.value,
-        pagu_anggaran:+edit_pagu.value,
-        anggaran_digunakan:+edit_digunakan.value,
-        pj_kegiatan:edit_pj.value,
-        uraian_kegiatan:edit_uraian.value
+    const data = {
+        kode_kegiatan: document.getElementById("edit_kode").value,
+        pagu_anggaran: +document.getElementById("edit_pagu").value,
+        anggaran_digunakan: +document.getElementById("edit_digunakan").value,
+        pj_kegiatan: document.getElementById("edit_pj").value,
+        uraian_kegiatan: document.getElementById("edit_uraian").value
     };
 
-    const res = await api("update",data);
-    Swal.fire("Update",res.message,"success");
+    const res = await api("update", data);
+    Swal.fire("Update", res.message, "success");
 
     closeEdit();
     loadData();
 };
 
 /* ================= DELETE ================= */
-async function hapus(kode){
+async function hapus(kode) {
     const confirm = await Swal.fire({
-        title:"Hapus data?",
-        text:kode,
-        icon:"warning",
-        showCancelButton:true
+        title: "Hapus data?",
+        text: kode,
+        icon: "warning",
+        showCancelButton: true
     });
 
-    if(!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-    const res = await api("delete",{kode_kegiatan:kode});
-    Swal.fire("Berhasil",res.message,"success");
+    const res = await api("delete", { kode_kegiatan: kode });
+    Swal.fire("Berhasil", res.message, "success");
 
     loadData();
+}
+
+/* ================= RIWAYAT REVISI DIPA ================= */
+const modalRiwayat = document.getElementById("modalRiwayat");
+
+async function openRiwayat() {
+    modalRiwayat.classList.add("show");
+    loadDataRiwayat();
+}
+
+function closeRiwayat() {
+    modalRiwayat.classList.remove("show");
+}
+
+async function loadDataRiwayat() {
+    const tbodyRiwayat = document.getElementById("tabelRiwayat");
+
+    try {
+        const res = await api("getRiwayatRevisi");
+        if (res.data && res.data.length > 0) {
+            tbodyRiwayat.innerHTML = res.data.map((d, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${d.tanggal || '-'}</td>
+                    <td>${d.kode_kegiatan}</td>
+                    <td class="numeric">${format(d.pagu_sebelum)}</td>
+                    <td class="numeric">${format(d.pagu_sesudah)}</td>
+                    <td>${d.keterangan || '-'}</td>
+                </tr>
+            `).join("");
+        } else {
+            tbodyRiwayat.innerHTML = `<tr><td colspan="6">Belum ada riwayat revisi DIPA.</td></tr>`;
+        }
+    } catch (err) {
+        tbodyRiwayat.innerHTML = `
+            <tr>
+                <td colspan="6" style="color: #666; font-style: italic;">
+                    Data riwayat belum terhubung dengan API.
+                </td>
+            </tr>`;
+    }
 }
 
 loadData();
