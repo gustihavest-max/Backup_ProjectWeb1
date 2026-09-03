@@ -11,38 +11,63 @@
 <body>
 
 <div class="container">
-  <h1>📊 Dashboard Anggaran</h1>
+  <h1>📊 Dashboard Anggaran Per Kode Kegiatan</h1>
 
-  <!-- PROGRESS BAR -->
+  <!-- PROGRESS BAR TOTAL OVERALL -->
   <div class="card">
-    <h3>Penggunaan Anggaran</h3>
+    <h3>Total Penggunaan Anggaran (Keseluruhan)</h3>
     <div class="progress-box">
       <div id="progressBar"></div>
     </div>
     <p id="persenText">0%</p>
   </div>
 
-  <!-- INFO -->
+  <!-- SUMMARY CARDS -->
   <div class="grid">
     <div class="card">
       <h4>Total Pagu</h4>
-      <p id="pagu">0</p>
+      <p id="pagu" class="pagu-text">0</p>
     </div>
 
     <div class="card">
-      <h4>Terpakai</h4>
-      <p id="digunakan">0</p>
+      <h4>Total Terpakai</h4>
+      <p id="digunakan" class="digunakan-text">0</p>
     </div>
 
     <div class="card">
-      <h4>Sisa</h4>
-      <p id="sisa">0</p>
+      <h4>Total Sisa</h4>
+      <p id="sisa" class="sisa-text">0</p>
     </div>
   </div>
 
-  <!-- CHART -->
+  <!-- CHART PER KODE / MAK -->
   <div class="card chart-card">
-    <canvas id="chart"></canvas>
+    <h3>Statistik Per Kode MAK</h3>
+    <div class="chart-wrapper">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- TABEL STATISTIK PER KODE -->
+  <div class="card">
+    <h3>Rincian Per Kode Kegiatan</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Kode Kegiatan</th>
+            <th>Pagu (Rp)</th>
+            <th>Terpakai (Rp)</th>
+            <th>Sisa (Rp)</th>
+            <th>Serapan (%)</th>
+          </tr>
+        </thead>
+        <tbody id="tabelStatistik">
+          <!-- Data dinamis dimuat via JS -->
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -58,53 +83,105 @@ async function loadStatistik() {
 
         const d = result.data;
 
-        // Update angka
-        document.getElementById("pagu").textContent = d.totalPagu.toLocaleString("id-ID");
-        document.getElementById("digunakan").textContent = d.totalDigunakan.toLocaleString("id-ID");
-        document.getElementById("sisa").textContent = d.totalSisa.toLocaleString("id-ID");
+        // 1. Update ringkasan total
+        document.getElementById("pagu").textContent = "Rp " + d.totalPagu.toLocaleString("id-ID");
+        document.getElementById("digunakan").textContent = "Rp " + d.totalDigunakan.toLocaleString("id-ID");
+        document.getElementById("sisa").textContent = "Rp " + d.totalSisa.toLocaleString("id-ID");
 
-        // Progress bar
-        const persen = d.persen;
+        // Progress bar keseluruhan
+        const persen = d.totalPersen;
         const bar = document.getElementById("progressBar");
-
         bar.style.width = persen + "%";
-        document.getElementById("persenText").textContent = persen + "%";
+        document.getElementById("persenText").textContent = persen + "% Terpakai";
 
-        // warna dinamis
         if (persen < 50) bar.style.background = "#22c55e";
         else if (persen < 80) bar.style.background = "#facc15";
         else bar.style.background = "#ef4444";
 
-        // Chart
+        // 2. Render Tabel Rincian per Kode MAK
+        const tbody = document.getElementById("tabelStatistik");
+        tbody.innerHTML = d.items.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${item.kode}</strong></td>
+                <td>${item.pagu.toLocaleString("id-ID")}</td>
+                <td>${item.digunakan.toLocaleString("id-ID")}</td>
+                <td>${item.sisa.toLocaleString("id-ID")}</td>
+                <td>
+                    <span class="badge ${item.persen > 80 ? 'badge-danger' : (item.persen > 50 ? 'badge-warning' : 'badge-success')}">
+                        ${item.persen}%
+                    </span>
+                </td>
+            </tr>
+        `).join("");
+
+        // 3. Render Chart Dinamis Per Kode MAK
+        const labels = d.items.map(item => item.kode);
+        const dataPagu = d.items.map(item => item.pagu);
+        const dataDigunakan = d.items.map(item => item.digunakan);
+        const dataSisa = d.items.map(item => item.sisa);
+
         if (chart) chart.destroy();
 
-        const ctx = document.getElementById("chart");
+        const ctx = document.getElementById("chart").getContext("2d");
 
         chart = new Chart(ctx, {
-            type: "doughnut",
+            type: "bar", // Menggunakan grafik batang horizontal/vertikal
             data: {
-                labels: ["Digunakan", "Sisa"],
-                datasets: [{
-                    data: [d.totalDigunakan, d.totalSisa],
-                    backgroundColor: ["#ef4444", "#22c55e"]
-                }]
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Pagu Anggaran",
+                        data: dataPagu,
+                        backgroundColor: "#3b82f6" // Biru
+                    },
+                    {
+                        label: "Anggaran Terpakai",
+                        data: dataDigunakan,
+                        backgroundColor: "#ef4444" // Merah
+                    },
+                    {
+                        label: "Sisa Anggaran",
+                        data: dataSisa,
+                        backgroundColor: "#22c55e" // Hijau
+                    }
+                ]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: "bottom" }
+                    legend: { position: "top" },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': Rp ' + context.raw.toLocaleString("id-ID");
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString("id-ID");
+                            }
+                        }
+                    }
                 }
             }
         });
 
     } catch (err) {
-        console.error(err);
+        console.error("Gagal memuat statistik:", err);
     }
 }
 
-// 🔥 AUTO REFRESH (LIVE)
+// Auto Refresh (Live)
 setInterval(loadStatistik, 5000);
 
-// first load
+// Load pertama kali
 loadStatistik();
 </script>
 

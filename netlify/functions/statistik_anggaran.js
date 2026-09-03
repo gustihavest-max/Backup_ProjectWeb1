@@ -7,29 +7,50 @@ exports.handler = async (event) => {
     }
 
     try {
+        // Query mengambil per kode kegiatan/MAK
         const [rows] = await pool.execute(`
             SELECT 
-                SUM(pagu_anggaran) AS total_pagu,
-                SUM(anggaran_digunakan) AS total_digunakan,
-                SUM(sisa_anggaran) AS total_sisa
+                kode_kegiatan,
+                pagu_anggaran,
+                anggaran_digunakan,
+                sisa_anggaran
             FROM anggaran_kegiatan
+            ORDER BY kode_kegiatan ASC
         `);
 
-        const r = rows[0];
+        // Hitung total akumulasi secara keseluruhan
+        let totalPagu = 0;
+        let totalDigunakan = 0;
+        let totalSisa = 0;
 
-        const totalPagu = parseFloat(r.total_pagu || 0);
-        const totalDigunakan = parseFloat(r.total_digunakan || 0);
-        const totalSisa = parseFloat(r.total_sisa || 0);
+        const items = rows.map((r) => {
+            const pagu = parseFloat(r.pagu_anggaran || 0);
+            const digunakan = parseFloat(r.anggaran_digunakan || 0);
+            const sisa = parseFloat(r.sisa_anggaran || 0);
 
-        const persen = totalPagu > 0 
-            ? ((totalDigunakan / totalPagu) * 100).toFixed(2)
+            totalPagu += pagu;
+            totalDigunakan += digunakan;
+            totalSisa += sisa;
+
+            return {
+                kode: r.kode_kegiatan,
+                pagu,
+                digunakan,
+                sisa,
+                persen: pagu > 0 ? ((digunakan / pagu) * 100).toFixed(2) : 0
+            };
+        });
+
+        const totalPersen = totalPagu > 0 
+            ? ((totalDigunakan / totalPagu) * 100).toFixed(2) 
             : 0;
 
         return res(200, true, "OK", {
             totalPagu,
             totalDigunakan,
             totalSisa,
-            persen
+            totalPersen,
+            items // Array statistik per kode kegiatan
         });
 
     } catch (err) {
