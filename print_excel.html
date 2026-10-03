@@ -73,16 +73,24 @@
     const tableContainer = document.getElementById('tabelContainer');
     const confirmModal = document.getElementById('confirmModal');
 
-    // Helper Format String Tanggal Indonesia (Anti Corrupt XML)
+    // Helper Format Tanggal Indonesia (String Teks Murni)
     const formatDateIndo = (dateStr) => {
       if (!dateStr) return '';
       const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
+      if (isNaN(d.getTime())) return String(dateStr);
       return d.toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
       });
+    };
+
+    // Helper Format Angka Ke Rupiah (String Teks Murni - Anti Corrupt XML)
+    const formatRupiah = (val) => {
+      if (val === null || val === undefined || val === '') return 'Rp 0';
+      const num = Number(val);
+      if (isNaN(num)) return String(val);
+      return 'Rp ' + num.toLocaleString('id-ID');
     };
 
     const formatDateRange = (start, end) => {
@@ -108,7 +116,7 @@
     }
 
     // ==========================================
-    // EXPORT KE EXCEL DENGAN KOORDINAT TEPAT
+    // EXPORT KE EXCEL
     // ==========================================
     const exportToExcel = async (groupData) => {
       showConfirmModal(groupData, async (isConfirmed) => {
@@ -131,28 +139,34 @@
           const wsFormPerjadin = workbook.getWorksheet('Form Perjalanan Dinas') || workbook.getWorksheet('Permohonan Perjadin') || workbook.worksheets[1];
 
           if (wsFormPerjadin) {
-            wsFormPerjadin.getCell('H10').value = mainRow.pj_kegiatan || '';
-            wsFormPerjadin.getCell('E22').value = mainRow.tujuan || '';
-            wsFormPerjadin.getCell('E23').value = mainRow.maksud || '';
+            wsFormPerjadin.getCell('H10').value = String(mainRow.pj_kegiatan || '');
+            wsFormPerjadin.getCell('E22').value = String(mainRow.tujuan || '');
+            wsFormPerjadin.getCell('E23').value = String(mainRow.maksud || '');
             wsFormPerjadin.getCell('E25').value = mainRow.lama_perjalanan ? `${mainRow.lama_perjalanan} ( dua ) hari` : '';
             
-            // Tanggal dikirim sebagai Teks murni
             wsFormPerjadin.getCell('E26').value = formatDateIndo(mainRow.tanggal_berangkat);
             wsFormPerjadin.getCell('G26').value = formatDateIndo(mainRow.tanggal_pulang);
 
-            // Tanda tangan & Anggaran
-            wsFormPerjadin.getCell('H35').value = pegawaiList[0]?.nama || '';
-            wsFormPerjadin.getCell('E39').value = mainRow.mak || '';
+            wsFormPerjadin.getCell('H35').value = String(pegawaiList[0]?.nama || '');
+            wsFormPerjadin.getCell('E39').value = String(mainRow.mak || '');
+
+            // --- PENAMBAHAN DATA ANGGARAN (E43 & E45) ---
+            // Menggunakan format Rupiah berbasis STRING untuk mencegah XML Repair Error
+            const anggaranDigunakan = mainRow.rencanabiaya || mainRow.anggaran_digunakan || mainRow.anggaran_digunakan_val || 0;
+            const sisaAnggaran = mainRow.sisa_anggaran || mainRow.sisa_anggaran_val || 0;
+
+            wsFormPerjadin.getCell('E43').value = formatRupiah(anggaranDigunakan);
+            wsFormPerjadin.getCell('E45').value = formatRupiah(sisaAnggaran);
 
             // Reset dan isi Tabel Pegawai (Baris 15 s/d 19)
             const START_ROW_P = 15;
             const MAX_ROWS_P = 19;
 
             for (let r = START_ROW_P; r <= MAX_ROWS_P; r++) {
-              wsFormPerjadin.getCell(`B${r}`).value = null; // No
-              wsFormPerjadin.getCell(`C${r}`).value = null; // Nama
-              wsFormPerjadin.getCell(`E${r}`).value = null; // Jabatan
-              wsFormPerjadin.getCell(`H${r}`).value = null; // Pangkat/Gol
+              wsFormPerjadin.getCell(`B${r}`).value = null;
+              wsFormPerjadin.getCell(`C${r}`).value = null;
+              wsFormPerjadin.getCell(`E${r}`).value = null;
+              wsFormPerjadin.getCell(`H${r}`).value = null;
             }
 
             pegawaiList.forEach((pegawai, index) => {
@@ -160,9 +174,9 @@
               if (row > MAX_ROWS_P) return;
 
               wsFormPerjadin.getCell(`B${row}`).value = index + 1;
-              wsFormPerjadin.getCell(`C${row}`).value = pegawai.nama || '';
-              wsFormPerjadin.getCell(`E${row}`).value = pegawai.jabatan || '';
-              wsFormPerjadin.getCell(`H${row}`).value = pegawai.golongan || '';
+              wsFormPerjadin.getCell(`C${row}`).value = String(pegawai.nama || '');
+              wsFormPerjadin.getCell(`E${row}`).value = String(pegawai.jabatan || '');
+              wsFormPerjadin.getCell(`H${row}`).value = String(pegawai.golongan || '');
             });
           }
 
@@ -172,20 +186,20 @@
           const wsSuratTugas = workbook.getWorksheet('Surat Tugas') || workbook.worksheets[2];
 
           if (wsSuratTugas) {
-            wsSuratTugas.getCell('E30').value = mainRow.maksud || '';
+            wsSuratTugas.getCell('E30').value = String(mainRow.maksud || '');
             wsSuratTugas.getCell('E32').value = formatDateIndo(mainRow.tanggal_berangkat);
             wsSuratTugas.getCell('G32').value = formatDateIndo(mainRow.tanggal_pulang);
-            wsSuratTugas.getCell('E34').value = mainRow.mak || '';
+            wsSuratTugas.getCell('E34').value = String(mainRow.mak || '');
 
             // Reset dan isi Tabel Pegawai (Baris 22 s/d 27)
             const START_ROW_ST = 22;
             const MAX_ROWS_ST = 27;
 
             for (let r = START_ROW_ST; r <= MAX_ROWS_ST; r++) {
-              wsSuratTugas.getCell(`A${r}`).value = null; // No
-              wsSuratTugas.getCell(`B${r}`).value = null; // Nama
-              wsSuratTugas.getCell(`E${r}`).value = null; // Golongan
-              wsSuratTugas.getCell(`G${r}`).value = null; // Jabatan
+              wsSuratTugas.getCell(`A${r}`).value = null;
+              wsSuratTugas.getCell(`B${r}`).value = null;
+              wsSuratTugas.getCell(`E${r}`).value = null;
+              wsSuratTugas.getCell(`G${r}`).value = null;
             }
 
             pegawaiList.forEach((pegawai, index) => {
@@ -193,14 +207,14 @@
               if (row > MAX_ROWS_ST) return;
 
               wsSuratTugas.getCell(`A${row}`).value = index + 1;
-              wsSuratTugas.getCell(`B${row}`).value = pegawai.nama || '';
-              wsSuratTugas.getCell(`E${row}`).value = pegawai.golongan || '';
-              wsSuratTugas.getCell(`G${row}`).value = pegawai.jabatan || '';
+              wsSuratTugas.getCell(`B${row}`).value = String(pegawai.nama || '');
+              wsSuratTugas.getCell(`E${row}`).value = String(pegawai.golongan || '');
+              wsSuratTugas.getCell(`G${row}`).value = String(pegawai.jabatan || '');
             });
           }
 
           // ---------------------------------------------------------------------
-          // 3. GENERATE DAN UNDUH FILE
+          // 3. GENERATE DAN UNDUH FILE EXCEL
           // ---------------------------------------------------------------------
           const buffer = await workbook.xlsx.writeBuffer();
           const blob = new Blob([buffer], {
