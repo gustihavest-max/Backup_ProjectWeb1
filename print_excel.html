@@ -76,7 +76,7 @@
     const tableContainer = document.getElementById('tabelContainer');
     const confirmModal = document.getElementById('confirmModal');
 
-    // format tanggal rentang
+    // Format tanggal rentang (DD/MM/YYYY - DD/MM/YYYY)
     const formatDateRange = (start, end) => {
       const dateStart = new Date(start).toLocaleDateString('id-ID');
       const dateEnd = new Date(end).toLocaleDateString('id-ID');
@@ -84,17 +84,17 @@
     };
 
     // =========================
-    // Modal confirm utility
+    // Modal Confirm Utility
     // =========================
     function showConfirmModal(groupData, callback) {
       const mainRow = groupData[0];
-      document.getElementById('modalText').innerText = `Anda yakin ingin mencetak data perjadin untuk ${groupData.length} pegawai ke ${mainRow.tujuan}?`;
+      document.getElementById('modalText').innerText = `Anda yakin ingin mencetak Surat Tugas & Permohonan Perjadin untuk ${groupData.length} pegawai ke ${mainRow.tujuan}?`;
       confirmModal.classList.remove('hidden');
 
       const yes = document.getElementById('modalYes');
       const no = document.getElementById('modalNo');
 
-      // reset handlers untuk menghindari multiple trigger
+      // Reset handlers untuk menghindari multiple trigger
       yes.onclick = () => {
         confirmModal.classList.add('hidden');
         callback(true);
@@ -105,121 +105,131 @@
       };
     }
 
-    // =========================
-    // Copy style dari satu baris ke baris lain (cell-by-cell)
-    // Aman untuk ExcelJS di browser.
-    // =========================
-    function copyRowStyle(srcRow, destRow) {
-      // pastikan ada srcRow & destRow
-      if (!srcRow || !destRow) return;
-      // salin style tiap cell
-      srcRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    // ===================================
+    // EXPORT KE EXCEL (2 SHEET DALAM 1 FILE)
+    // ===================================
+    const exportToExcel = async (groupData) => {
+      showConfirmModal(groupData, async (isConfirmed) => {
+        if (!isConfirmed) return;
+
+        const mainRow = groupData[0];
+        const pegawaiList = groupData;
+
         try {
-          const targetCell = destRow.getCell(colNumber);
-          // deep-clone style object agar tidak reference
-          targetCell.style = JSON.parse(JSON.stringify(cell.style || {}));
-          // jika ada nilai format (numFmt) atau tipe lain, style sudah termasuk
-        } catch (e) {
-          // jangan crash jika ada cell yang aneh
-          console.warn('copyRowStyle warning col', colNumber, e.message);
+          // Ambil file template yang memiliki 2 sheet (Surat Tugas & Permohonan Perjadin)
+          const resp = await fetch('/template_pst.xlsx');
+          if (!resp.ok) throw new Error('File template_pst.xlsx tidak ditemukan');
+          
+          const arrayBuffer = await resp.arrayBuffer();
+
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.load(arrayBuffer);
+
+          // ----------------------------------------------------
+          // AMBIL SHEET BERDASARKAN NAMA DARI TEMPLATE EXCEL
+          // ----------------------------------------------------
+          // Mengambil Sheet 1 & Sheet 2
+          const wsST = workbook.getWorksheet('Surat Tugas') || workbook.worksheets[0];
+          const wsPermohonan = workbook.getWorksheet('Permohonan Perjadin') || workbook.worksheets[1];
+
+          // =========================================
+          // 1. MEMENGISI SHEET 1 (SURAT TUGAS)
+          // =========================================
+          if (wsST) {
+            wsST.getCell('E24').value = mainRow.tujuan;
+            wsST.getCell('E28').value = new Date(mainRow.tanggal_berangkat);
+            wsST.getCell('H28').value = new Date(mainRow.tanggal_pulang);
+            wsST.getCell('H37').value = mainRow.pj_kegiatan;
+            wsST.getCell('E25').value = mainRow.maksud;
+            wsST.getCell('O1').value = mainRow.email_user;
+            wsST.getCell('O2').value = new Date(mainRow.created_at).toLocaleString('id-ID');
+            wsST.getCell('E27').value = mainRow.lama_perjalanan;
+            wsST.getCell('F45').value = Number(mainRow.rencanabiaya);
+
+            // Pengisian Tabel Pegawai B14–I22
+            const START_ROW_ST = 14;
+            const MAX_ROWS_ST = 22;
+
+            // Clear isi slot kosong di template
+            for (let r = START_ROW_ST; r <= MAX_ROWS_ST; r++) {
+              wsST.getCell(`B${r}`).value = null;
+              wsST.getCell(`C${r}`).value = null;
+              wsST.getCell(`F${r}`).value = null;
+              wsST.getCell(`I${r}`).value = null;
+            }
+
+            // Isi daftar pegawai
+            pegawaiList.forEach((pegawai, index) => {
+              const row = START_ROW_ST + index;
+              if (row > MAX_ROWS_ST) return;
+
+              wsST.getCell(`B${row}`).value = index + 1;
+              wsST.getCell(`C${row}`).value = pegawai.nama;
+              wsST.getCell(`F${row}`).value = pegawai.jabatan;
+              wsST.getCell(`I${row}`).value = pegawai.golongan;
+            });
+          }
+
+          // =========================================
+          // 2. MENGISI SHEET 2 (PERMOHONAN PERJADIN)
+          // =========================================
+          if (wsPermohonan) {
+            // Silakan sesuaikan letak Cell dengan template Permohonan milik Anda
+            wsPermohonan.getCell('E24').value = mainRow.tujuan;
+            wsPermohonan.getCell('E25').value = mainRow.maksud;
+            wsPermohonan.getCell('E28').value = new Date(mainRow.tanggal_berangkat);
+            wsPermohonan.getCell('H28').value = new Date(mainRow.tanggal_pulang);
+            wsPermohonan.getCell('E27').value = mainRow.lama_perjalanan;
+            wsPermohonan.getCell('H37').value = mainRow.pj_kegiatan;
+            wsPermohonan.getCell('F45').value = Number(mainRow.rencanabiaya);
+
+            // Tabel Pegawai di Sheet Permohonan
+            const START_ROW_PERM = 14;
+            const MAX_ROWS_PERM = 22;
+
+            for (let r = START_ROW_PERM; r <= MAX_ROWS_PERM; r++) {
+              wsPermohonan.getCell(`B${r}`).value = null;
+              wsPermohonan.getCell(`C${r}`).value = null;
+              wsPermohonan.getCell(`F${r}`).value = null;
+              wsPermohonan.getCell(`I${r}`).value = null;
+            }
+
+            pegawaiList.forEach((pegawai, index) => {
+              const row = START_ROW_PERM + index;
+              if (row > MAX_ROWS_PERM) return;
+
+              wsPermohonan.getCell(`B${row}`).value = index + 1;
+              wsPermohonan.getCell(`C${row}`).value = pegawai.nama;
+              wsPermohonan.getCell(`F${row}`).value = pegawai.jabatan;
+              wsPermohonan.getCell(`I${row}`).value = pegawai.golongan;
+            });
+          }
+
+          // =========================================
+          // 3. PROSES DOWNLOAD SINGLE FILE EXCEL
+          // =========================================
+          const buffer = await workbook.xlsx.writeBuffer();
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          });
+
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `E-Perjadin_${mainRow.tujuan.replace(/\s+/g, '_')}_${mainRow.created_at.slice(0,10)}.xlsx`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+        } catch (err) {
+          console.error('Gagal generate Excel:', err);
+          alert('Gagal generate Excel. Pastikan file template_pst.xlsx tersedia di server.');
         }
       });
-      // juga salin height jika ada
-      try {
-        destRow.height = srcRow.height;
-      } catch (e) {}
-    }
+    };
 
-    // ======================
-//   EXPORT KE EXCEL FIX
-// ======================
-const exportToExcel = async (groupData) => {
-  showConfirmModal(groupData, async (isConfirmed) => {
-    if (!isConfirmed) return;
-
-    const mainRow = groupData[0];
-    const pegawaiList = groupData; // 1 - 3 orang
-
-    try {
-      const resp = await fetch('/template_pst.xlsx');
-      const arrayBuffer = await resp.arrayBuffer();
-
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(arrayBuffer);
-      const ws = workbook.worksheets[0];
-
-      // =======================
-      //  BAGIAN 1 → Data tunggal
-      // =======================
-      ws.getCell('E24').value = mainRow.tujuan;
-      ws.getCell('E28').value = new Date(mainRow.tanggal_berangkat);
-      ws.getCell('H28').value = new Date(mainRow.tanggal_pulang);
-      ws.getCell('H37').value = mainRow.pj_kegiatan;
-      ws.getCell('E25').value = mainRow.maksud;
-      ws.getCell('O1').value = mainRow.email_user;
-      ws.getCell('O2').value = new Date(mainRow.created_at).toLocaleString();
-      ws.getCell('E27').value = mainRow.lama_perjalanan;
-      const biayaCell = ws.getCell('F45');
-
-biayaCell.value = Number(mainRow.rencanabiaya); // tetap number
-
-
-
-      // =====================================
-      //  BAGIAN 2 → Isi tabel pegawai B15–E23
-      //  TANPA insertRows, TANPA copy style
-      // =====================================
-
-      const START_ROW = 14;    // row untuk pegawai pertama
-      const MAX_ROWS  = 22;    // range akhir template
-      const MAX_COUNT = MAX_ROWS - START_ROW + 1; // total slot tersedia (9)
-
-      // clear slot kosong dulu
-      for (let r = START_ROW; r <= MAX_ROWS; r++) {
-  ws.getCell(`B${r}`).value = null; // No
-  ws.getCell(`C${r}`).value = null; // Nama
-  ws.getCell(`F${r}`).value = null; // Jabatan
-  ws.getCell(`I${r}`).value = null; // Golongan
-}
-
-
-      // isi sesuai jumlah pegawai
-      pegawaiList.forEach((pegawai, index) => {
-  const row = START_ROW + index;
-  if (row > MAX_ROWS) return;
-
-  ws.getCell(`B${row}`).value = index + 1; // No
-  ws.getCell(`C${row}`).value = pegawai.nama;
-  ws.getCell(`F${row}`).value = pegawai.jabatan;
-  ws.getCell(`I${row}`).value = pegawai.golongan;
-});
-
-
-      // ========================
-      //  BAGIAN 3 → Download file
-      // ========================
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
-
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download =
-        `perjadin_${mainRow.tujuan.replace(/\s/g, '_')}_${mainRow.created_at.slice(0,10)}.xlsx`;
-      link.click();
-
-    } catch (err) {
-      console.error('Gagal generate Excel:', err);
-      alert('Gagal generate Excel. Cek console untuk detail. Pastikan template_ST.xlsx tersedia dan START_ROW sesuai template.');
-    }
-  });
-};
-
-
-    // =========================
-    // Group data berdasarkan tujuan + tanggal + pengaju (mirip kode sebelumnya)
-    // =========================
+    // ========================================================
+    // Group Data berdasarkan tujuan + tanggal + pengaju (email)
+    // ========================================================
     function groupPerjadinData(data) {
       const grouped = {};
       data.forEach(row => {
@@ -231,7 +241,7 @@ biayaCell.value = Number(mainRow.rencanabiaya); // tetap number
     }
 
     // =========================
-    // Load data & render tabel
+    // Load Data & Render Tabel
     // =========================
     document.addEventListener('DOMContentLoaded', async () => {
       const email = localStorage.getItem('loggedInUser') || 'User';
@@ -252,42 +262,31 @@ biayaCell.value = Number(mainRow.rencanabiaya); // tetap number
 
         const groupedPerjadinData = groupPerjadinData(allData);
 
+        // Render baris tabel
         tbody.innerHTML = groupedPerjadinData.map((group, idx) => {
           const mainRow = group[0];
           const namaList = group.map(p => p.nama).join(', ');
           return `
             <tr data-group-index="${idx}">
-              <td class="p-2 border font-semibold text-center">
-  ${mainRow.id_perjadin}
-</td>
-
+              <td class="p-2 border font-semibold text-center">${mainRow.id_perjadin}</td>
               <td class="p-2 border font-semibold">${namaList} (${group.length} org)</td>
               <td class="p-2 border">${mainRow.tujuan}</td>
               <td class="p-2 border">${formatDateRange(mainRow.tanggal_berangkat, mainRow.tanggal_pulang)}</td>
               <td class="p-2 border">${mainRow.pj_kegiatan}</td>
               <td class="p-2 border">${new Date(mainRow.created_at).toLocaleString('id-ID')}</td>
-              <td class="p-2 border">
-                <button class="export-btn text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition" data-index="${idx}">📥 Cetak Excel</button>
+              <td class="p-2 border text-center">
+                <button class="export-btn text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition" data-index="${idx}">
+                  📥 Cetak Excel
+                </button>
               </td>
             </tr>
           `;
         }).join('');
 
-        // pasang event handler export
-        tbody.querySelectorAll('.export-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const groupIndex = Number(e.target.getAttribute('data-index'));
-            // Ambil kembali grouped data dari DOM (bisa disimpan di variable luar jika mau)
-            // Simpel: panggil ulang fetch allData? Untuk efisiensi kita menyimpan groupedPerjadinData di closure.
-            // Untuk sekarang kita simple - ambil semua rows lagi dari server (lebih aman kalau data berubah)
-            // Namun untuk kemudahan, gunakan groupedPerjadinData yang dideklarasikan di scope atas
-          });
-        });
-
-        // supaya export-btn benar-benar punya akses ke data, simpan grouped di property tbody
+        // Simpan data di DOM elemen tbody
         tbody._groupedData = groupedPerjadinData;
 
-        // pasang ulang event handler dengan akses ke grouped data
+        // Pasang Event Listener Tombol Cetak
         tbody.querySelectorAll('.export-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const idx = Number(e.target.getAttribute('data-index'));
