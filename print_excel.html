@@ -76,7 +76,7 @@
     const tableContainer = document.getElementById('tabelContainer');
     const confirmModal = document.getElementById('confirmModal');
 
-    // Format tanggal rentang (DD/MM/YYYY - DD/MM/YYYY)
+    // format tanggal rentang
     const formatDateRange = (start, end) => {
       const dateStart = new Date(start).toLocaleDateString('id-ID');
       const dateEnd = new Date(end).toLocaleDateString('id-ID');
@@ -84,17 +84,17 @@
     };
 
     // =========================
-    // Modal Confirm Utility
+    // Modal confirm utility
     // =========================
     function showConfirmModal(groupData, callback) {
       const mainRow = groupData[0];
-      document.getElementById('modalText').innerText = `Anda yakin ingin mencetak Surat Tugas & Permohonan Perjadin untuk ${groupData.length} pegawai ke ${mainRow.tujuan}?`;
+      document.getElementById('modalText').innerText = `Anda yakin ingin mencetak data Surat Tugas dan Permohonan Perjadin untuk ${groupData.length} pegawai ke ${mainRow.tujuan}?`;
       confirmModal.classList.remove('hidden');
 
       const yes = document.getElementById('modalYes');
       const no = document.getElementById('modalNo');
 
-      // Reset handlers untuk menghindari multiple trigger
+      // reset handlers untuk menghindari multiple trigger
       yes.onclick = () => {
         confirmModal.classList.add('hidden');
         callback(true);
@@ -105,98 +105,78 @@
       };
     }
 
-    // ===================================
-    // EXPORT KE EXCEL (2 SHEET DALAM 1 FILE)
-    // ===================================
+    // =========================
+    // Copy style dari satu baris ke baris lain (cell-by-cell)
+    // =========================
+    function copyRowStyle(srcRow, destRow) {
+      if (!srcRow || !destRow) return;
+      srcRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        try {
+          const targetCell = destRow.getCell(colNumber);
+          targetCell.style = JSON.parse(JSON.stringify(cell.style || {}));
+        } catch (e) {
+          console.warn('copyRowStyle warning col', colNumber, e.message);
+        }
+      });
+      try {
+        destRow.height = srcRow.height;
+      } catch (e) {}
+    }
+
+    // ======================
+    // EXPORT KE EXCEL FIX
+    // ======================
     const exportToExcel = async (groupData) => {
       showConfirmModal(groupData, async (isConfirmed) => {
         if (!isConfirmed) return;
 
         const mainRow = groupData[0];
-        const pegawaiList = groupData;
+        const pegawaiList = groupData; // 1 - 3 orang
 
         try {
-          // Ambil file template yang memiliki 2 sheet (Surat Tugas & Permohonan Perjadin)
           const resp = await fetch('/template_pst.xlsx');
-          if (!resp.ok) throw new Error('File template_pst.xlsx tidak ditemukan');
-          
+          if (!resp.ok) throw new Error(`Template tidak ditemukan: ${resp.status}`);
           const arrayBuffer = await resp.arrayBuffer();
 
           const workbook = new ExcelJS.Workbook();
           await workbook.xlsx.load(arrayBuffer);
 
-          // ----------------------------------------------------
-          // AMBIL SHEET BERDASARKAN NAMA DARI TEMPLATE EXCEL
-          // ----------------------------------------------------
-          // Mengambil Sheet 1 & Sheet 2
-          const wsST = workbook.getWorksheet('Surat Tugas') || workbook.worksheets[0];
-          const wsPermohonan = workbook.getWorksheet('Permohonan Perjadin') || workbook.worksheets[1];
+          // ---------------------------------------------------------------------
+          // MEMANGGIL SHEET: Permohonan Perjadin & Surat Tugas DARI WORKBOOK
+          // ---------------------------------------------------------------------
+          // Mencoba memanggil berdasarkan nama Sheet atau index (Worksheet 0 dan 1)
+          const wsPermohonan = workbook.getWorksheet('Permohonan Perjadin') || workbook.worksheets[0];
+          const wsSuratTugas = workbook.getWorksheet('Surat Tugas') || workbook.worksheets[1] || wsPermohonan;
 
           // =========================================
-          // 1. MEMENGISI SHEET 1 (SURAT TUGAS)
-          // =========================================
-          if (wsST) {
-            wsST.getCell('E24').value = mainRow.tujuan;
-            wsST.getCell('E28').value = new Date(mainRow.tanggal_berangkat);
-            wsST.getCell('H28').value = new Date(mainRow.tanggal_pulang);
-            wsST.getCell('H37').value = mainRow.pj_kegiatan;
-            wsST.getCell('E25').value = mainRow.maksud;
-            wsST.getCell('O1').value = mainRow.email_user;
-            wsST.getCell('O2').value = new Date(mainRow.created_at).toLocaleString('id-ID');
-            wsST.getCell('E27').value = mainRow.lama_perjalanan;
-            wsST.getCell('F45').value = Number(mainRow.rencanabiaya);
-
-            // Pengisian Tabel Pegawai B14–I22
-            const START_ROW_ST = 14;
-            const MAX_ROWS_ST = 22;
-
-            // Clear isi slot kosong di template
-            for (let r = START_ROW_ST; r <= MAX_ROWS_ST; r++) {
-              wsST.getCell(`B${r}`).value = null;
-              wsST.getCell(`C${r}`).value = null;
-              wsST.getCell(`F${r}`).value = null;
-              wsST.getCell(`I${r}`).value = null;
-            }
-
-            // Isi daftar pegawai
-            pegawaiList.forEach((pegawai, index) => {
-              const row = START_ROW_ST + index;
-              if (row > MAX_ROWS_ST) return;
-
-              wsST.getCell(`B${row}`).value = index + 1;
-              wsST.getCell(`C${row}`).value = pegawai.nama;
-              wsST.getCell(`F${row}`).value = pegawai.jabatan;
-              wsST.getCell(`I${row}`).value = pegawai.golongan;
-            });
-          }
-
-          // =========================================
-          // 2. MENGISI SHEET 2 (PERMOHONAN PERJADIN)
+          // 1. ISI SHEET PERMOHONAN PERJADIN (Sheet 1)
           // =========================================
           if (wsPermohonan) {
-            // Silakan sesuaikan letak Cell dengan template Permohonan milik Anda
             wsPermohonan.getCell('E24').value = mainRow.tujuan;
-            wsPermohonan.getCell('E25').value = mainRow.maksud;
             wsPermohonan.getCell('E28').value = new Date(mainRow.tanggal_berangkat);
             wsPermohonan.getCell('H28').value = new Date(mainRow.tanggal_pulang);
-            wsPermohonan.getCell('E27').value = mainRow.lama_perjalanan;
             wsPermohonan.getCell('H37').value = mainRow.pj_kegiatan;
+            wsPermohonan.getCell('E25').value = mainRow.maksud;
+            wsPermohonan.getCell('O1').value = mainRow.email_user;
+            wsPermohonan.getCell('O2').value = new Date(mainRow.created_at).toLocaleString('id-ID');
+            wsPermohonan.getCell('E27').value = mainRow.lama_perjalanan;
             wsPermohonan.getCell('F45').value = Number(mainRow.rencanabiaya);
 
-            // Tabel Pegawai di Sheet Permohonan
-            const START_ROW_PERM = 14;
-            const MAX_ROWS_PERM = 22;
+            // Clear slot kosong pegawai B14–I22 di Sheet Permohonan
+            const START_ROW_P = 14;
+            const MAX_ROWS_P = 22;
 
-            for (let r = START_ROW_PERM; r <= MAX_ROWS_PERM; r++) {
-              wsPermohonan.getCell(`B${r}`).value = null;
-              wsPermohonan.getCell(`C${r}`).value = null;
-              wsPermohonan.getCell(`F${r}`).value = null;
-              wsPermohonan.getCell(`I${r}`).value = null;
+            for (let r = START_ROW_P; r <= MAX_ROWS_P; r++) {
+              wsPermohonan.getCell(`B${r}`).value = null; // No
+              wsPermohonan.getCell(`C${r}`).value = null; // Nama
+              wsPermohonan.getCell(`F${r}`).value = null; // Jabatan
+              wsPermohonan.getCell(`I${r}`).value = null; // Golongan
             }
 
+            // Isi daftar pegawai di Sheet Permohonan
             pegawaiList.forEach((pegawai, index) => {
-              const row = START_ROW_PERM + index;
-              if (row > MAX_ROWS_PERM) return;
+              const row = START_ROW_P + index;
+              if (row > MAX_ROWS_P) return;
 
               wsPermohonan.getCell(`B${row}`).value = index + 1;
               wsPermohonan.getCell(`C${row}`).value = pegawai.nama;
@@ -206,8 +186,45 @@
           }
 
           // =========================================
-          // 3. PROSES DOWNLOAD SINGLE FILE EXCEL
+          // 2. ISI SHEET SURAT TUGAS (Sheet 2)
           // =========================================
+          if (wsSuratTugas && wsSuratTugas !== wsPermohonan) {
+            wsSuratTugas.getCell('E24').value = mainRow.tujuan;
+            wsSuratTugas.getCell('E28').value = new Date(mainRow.tanggal_berangkat);
+            wsSuratTugas.getCell('H28').value = new Date(mainRow.tanggal_pulang);
+            wsSuratTugas.getCell('H37').value = mainRow.pj_kegiatan;
+            wsSuratTugas.getCell('E25').value = mainRow.maksud;
+            wsSuratTugas.getCell('O1').value = mainRow.email_user;
+            wsSuratTugas.getCell('O2').value = new Date(mainRow.created_at).toLocaleString('id-ID');
+            wsSuratTugas.getCell('E27').value = mainRow.lama_perjalanan;
+            wsSuratTugas.getCell('F45').value = Number(mainRow.rencanabiaya);
+
+            // Clear slot kosong pegawai B14–I22 di Sheet Surat Tugas
+            const START_ROW_ST = 14;
+            const MAX_ROWS_ST = 22;
+
+            for (let r = START_ROW_ST; r <= MAX_ROWS_ST; r++) {
+              wsSuratTugas.getCell(`B${r}`).value = null;
+              wsSuratTugas.getCell(`C${r}`).value = null;
+              wsSuratTugas.getCell(`F${r}`).value = null;
+              wsSuratTugas.getCell(`I${r}`).value = null;
+            }
+
+            // Isi daftar pegawai di Sheet Surat Tugas
+            pegawaiList.forEach((pegawai, index) => {
+              const row = START_ROW_ST + index;
+              if (row > MAX_ROWS_ST) return;
+
+              wsSuratTugas.getCell(`B${row}`).value = index + 1;
+              wsSuratTugas.getCell(`C${row}`).value = pegawai.nama;
+              wsSuratTugas.getCell(`F${row}`).value = pegawai.jabatan;
+              wsSuratTugas.getCell(`I${row}`).value = pegawai.golongan;
+            });
+          }
+
+          // ========================
+          // 3. DOWNLOAD FILE EXCEL
+          // ========================
           const buffer = await workbook.xlsx.writeBuffer();
           const blob = new Blob([buffer], {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -215,21 +232,21 @@
 
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
-          link.download = `E-Perjadin_${mainRow.tujuan.replace(/\s+/g, '_')}_${mainRow.created_at.slice(0,10)}.xlsx`;
+          link.download = `perjadin_${mainRow.tujuan.replace(/\s+/g, '_')}_${mainRow.created_at.slice(0,10)}.xlsx`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
 
         } catch (err) {
           console.error('Gagal generate Excel:', err);
-          alert('Gagal generate Excel. Pastikan file template_pst.xlsx tersedia di server.');
+          alert('Gagal generate Excel. Cek console untuk detail. Pastikan template_pst.xlsx tersedia di folder server.');
         }
       });
     };
 
-    // ========================================================
-    // Group Data berdasarkan tujuan + tanggal + pengaju (email)
-    // ========================================================
+    // =========================
+    // Group data berdasarkan tujuan + tanggal + pengaju
+    // =========================
     function groupPerjadinData(data) {
       const grouped = {};
       data.forEach(row => {
@@ -241,7 +258,7 @@
     }
 
     // =========================
-    // Load Data & Render Tabel
+    // Load data & render tabel
     // =========================
     document.addEventListener('DOMContentLoaded', async () => {
       const email = localStorage.getItem('loggedInUser') || 'User';
@@ -262,31 +279,30 @@
 
         const groupedPerjadinData = groupPerjadinData(allData);
 
-        // Render baris tabel
         tbody.innerHTML = groupedPerjadinData.map((group, idx) => {
           const mainRow = group[0];
           const namaList = group.map(p => p.nama).join(', ');
           return `
             <tr data-group-index="${idx}">
-              <td class="p-2 border font-semibold text-center">${mainRow.id_perjadin}</td>
+              <td class="p-2 border font-semibold text-center">
+                ${mainRow.id_perjadin}
+              </td>
               <td class="p-2 border font-semibold">${namaList} (${group.length} org)</td>
               <td class="p-2 border">${mainRow.tujuan}</td>
               <td class="p-2 border">${formatDateRange(mainRow.tanggal_berangkat, mainRow.tanggal_pulang)}</td>
               <td class="p-2 border">${mainRow.pj_kegiatan}</td>
               <td class="p-2 border">${new Date(mainRow.created_at).toLocaleString('id-ID')}</td>
-              <td class="p-2 border text-center">
-                <button class="export-btn text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition" data-index="${idx}">
-                  📥 Cetak Excel
-                </button>
+              <td class="p-2 border">
+                <button class="export-btn text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition" data-index="${idx}">📥 Cetak Excel</button>
               </td>
             </tr>
           `;
         }).join('');
 
-        // Simpan data di DOM elemen tbody
+        // Simpan grouped data ke properti tbody
         tbody._groupedData = groupedPerjadinData;
 
-        // Pasang Event Listener Tombol Cetak
+        // Pasang event handler dengan akses ke grouped data
         tbody.querySelectorAll('.export-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const idx = Number(e.target.getAttribute('data-index'));
