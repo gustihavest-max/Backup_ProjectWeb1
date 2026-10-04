@@ -24,9 +24,9 @@ exports.handler = async (event) => {
         lama_perjalanan,
         kendaraan,
         pj_kegiatan,
+        kode_kegiatan,
         rencanabiaya,
-        urlbiaya,
-        urldatadukung,
+        sisa_anggaran,
         email_user,
         created_at
       FROM ajukanperjadin
@@ -35,7 +35,6 @@ exports.handler = async (event) => {
 
     const [rows] = await pool.execute(query);
 
-    // ⬇⬇⬇ PENTING: KEMBALIKAN ARRAY LANGSUNG ⬇⬇⬇
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
@@ -48,7 +47,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([]), // frontend lama aman (anggap kosong)
+      body: JSON.stringify([]),
     };
   }
 };

@@ -146,14 +146,15 @@
             wsFormPerjadin.getCell('E26').value = formatDateIndo(mainRow.tanggal_berangkat);
             wsFormPerjadin.getCell('H26').value = formatDateIndo(mainRow.tanggal_pulang);
 
-            // PJ KEGIATAN di Sheet Permohonan Perjadin diletakkan di H35
+            // PJ KEGIATAN
             wsFormPerjadin.getCell('H35').value = String(mainRow.pj_kegiatan || '');
 
+            // MAK & KODE KEGIATAN
             wsFormPerjadin.getCell('E39').value = String(mainRow.mak || '');
+            wsFormPerjadin.getCell('H39').value = String(mainRow.kode_kegiatan || ''); // Kode Kegiatan di H:39
 
             // DATA ANGGARAN & SISA ANGGARAN
-            // Mencari nilai sisa_anggaran dari item pertama yang tidak bernilai null/0/undefined
-            const rawRencana = groupData.find(item => item.rencanabiaya || item.anggaran_digunakan)?.rencanabiaya || mainRow.rencanabiaya || 0;
+            const rawRencana = groupData.find(item => item.rencanabiaya)?.rencanabiaya || mainRow.rencanabiaya || 0;
             const rawSisa = groupData.find(item => item.sisa_anggaran !== undefined && item.sisa_anggaran !== null && item.sisa_anggaran !== 0 && item.sisa_anggaran !== '0.00')?.sisa_anggaran || mainRow.sisa_anggaran || 0;
 
             wsFormPerjadin.getCell('E43').value = formatRupiah(rawRencana);
@@ -190,9 +191,9 @@
             wsSuratTugas.getCell('E30').value = String(mainRow.maksud || '');
             wsSuratTugas.getCell('E32').value = formatDateIndo(mainRow.tanggal_berangkat);
             wsSuratTugas.getCell('G32').value = formatDateIndo(mainRow.tanggal_pulang);
-            wsSuratTugas.getCell('E34').value = String(mainRow.mak || '');
 
-            // PJ KEGIATAN di Sheet Surat Tugas diletakkan di G46
+            // KODE KEGIATAN & PJ KEGIATAN
+            wsSuratTugas.getCell('E34').value = String(mainRow.kode_kegiatan || ''); // Kode Kegiatan di E:34
             wsSuratTugas.getCell('G46').value = String(mainRow.pj_kegiatan || '');
 
             // Reset dan isi Tabel Pegawai (Baris 22 s/d 27)
