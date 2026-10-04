@@ -23,8 +23,6 @@ exports.handler = async (event) => {
     lama_perjalanan,
     kendaraan,
     pj_kegiatan,
-    urlbiaya,
-    urldatadukung,
     rencanabiaya,
     kode_kegiatan
   } = body;
@@ -74,16 +72,20 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Sisa anggaran tidak mencukupi' }) };
     }
 
+    // Hitung Sisa Anggaran Baru setelah dikurangi rencana biaya
+    const newSisa = currentSisa - rencanaBiaya;
+    const newDigunakan = currentDigunakan + rencanaBiaya;
+
     /* =====================================================
-       3️⃣ INSERT SEMUA PEGAWAI (id_perjadin SAMA)
+       3️⃣ INSERT SEMUA PEGAWAI (TERMASUK sisa_anggaran)
        ===================================================== */
     const insertSQL = `
       INSERT INTO ajukanperjadin
       (id_perjadin, email_user, nama, golongan, jabatan,
        tujuan, maksud, tanggal_berangkat, tanggal_pulang,
        lama_perjalanan, kendaraan, pj_kegiatan,
-       kode_kegiatan, rencanabiaya, urlbiaya, urldatadukung)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       kode_kegiatan, rencanabiaya, sisa_anggaran)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     let rowsInserted = 0;
@@ -104,8 +106,7 @@ exports.handler = async (event) => {
         pj_kegiatan || null,
         kode_kegiatan,
         rencanaBiaya,
-        urlbiaya || null,
-        urldatadukung || null
+        newSisa // <-- Disimpan ke kolom sisa_anggaran
       ];
 
       const [resInsert] = await conn.execute(insertSQL, values);
@@ -113,11 +114,8 @@ exports.handler = async (event) => {
     }
 
     /* =====================================================
-       4️⃣ UPDATE ANGGARAN
+       4️⃣ UPDATE ANGGARAN KEGIATAN
        ===================================================== */
-    const newSisa = currentSisa - rencanaBiaya;
-    const newDigunakan = currentDigunakan + rencanaBiaya;
-
     await conn.execute(
       'UPDATE anggaran_kegiatan SET sisa_anggaran = ?, anggaran_digunakan = ? WHERE kode_kegiatan = ?',
       [newSisa, newDigunakan, kode_kegiatan]

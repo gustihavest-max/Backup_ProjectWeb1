@@ -89,10 +89,10 @@
     <label>Penanggung Jawab Kegiatan</label>
     <input type="text" id="pjKegiatan" readonly placeholder="Terisi otomatis..." style="background: #f4f4f4;" />
 
-    <label>Sisa Anggaran (Rp)</label>
+    <label>Sisa Anggaran Saat Ini (Rp)</label>
     <input type="text" id="sisaAnggaran" readonly placeholder="Terisi otomatis..." style="background: #f4f4f4; font-weight: bold; color: #2c3e50;" />
 
-    <label>Rencana Biaya (Rp))</label>
+    <label>Rencana Biaya (Rp)</label>
     <input type="number" id="rencanaBiayaTotal" placeholder="Contoh: 1500000" required />
 
     <button type="submit" id="submitBtn">💾 Simpan Pengajuan</button>
@@ -142,9 +142,8 @@ function initSelectPegawai(el) {
 }
 
 /* =========================
-   2. FUNGSI ANGGARAN (NEW)
+   2. FUNGSI ANGGARAN
 ========================= */
-// Global data untuk menyimpan detail anggaran
 let dataAnggaranGlobal = [];
 
 async function fetchDaftarAnggaran() {
@@ -172,14 +171,12 @@ async function fetchDaftarAnggaran() {
   }
 }
 
-// Event saat Kode Kegiatan dipilih
 document.getElementById("kodeKegiatan").addEventListener("change", function() {
   const selectedKode = this.value;
   const find = dataAnggaranGlobal.find(a => a.kode_kegiatan === selectedKode);
   
   if (find) {
     document.getElementById("pjKegiatan").value = find.pj_kegiatan || "-";
-    // Format Rupiah sederhana
     const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
     document.getElementById("sisaAnggaran").value = formatter.format(find.sisa_anggaran);
   } else {
@@ -196,11 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if(user) document.getElementById("userDisplay").textContent = "👤 " + user;
 
   document.querySelectorAll(".nama-select-field").forEach(el => initSelectPegawai(el));
-  
-  // Ambil data anggaran dari database
   fetchDaftarAnggaran();
 
-  // Flatpickr
   flatpickr(".date-picker", { 
     altInput: true, 
     altFormat: "d-m-Y", 
@@ -240,7 +234,7 @@ document.getElementById("addPegawaiBtn").addEventListener("click", () => {
 });
 
 /* =========================
-   4. SUBMIT (FIXED)
+   4. SUBMIT
 ========================= */
 document.getElementById("perjadinForm").addEventListener("submit", async (e) => {
   e.preventDefault();
