@@ -139,13 +139,13 @@
           const wsFormPerjadin = workbook.getWorksheet('Form Perjalanan Dinas') || workbook.getWorksheet('Permohonan Perjadin') || workbook.worksheets[1];
 
           if (wsFormPerjadin) {
-            wsFormPerjadin.getCell('H10').value = String(mainRow.pj_kegiatan || '');
+            wsFormPerjadin.getCell('H35').value = String(mainRow.pj_kegiatan || '');
             wsFormPerjadin.getCell('E22').value = String(mainRow.tujuan || '');
             wsFormPerjadin.getCell('E23').value = String(mainRow.maksud || '');
             wsFormPerjadin.getCell('E25').value = mainRow.lama_perjalanan ? `${mainRow.lama_perjalanan} ( dua ) hari` : '';
             
             wsFormPerjadin.getCell('E26').value = formatDateIndo(mainRow.tanggal_berangkat);
-            wsFormPerjadin.getCell('G26').value = formatDateIndo(mainRow.tanggal_pulang);
+            wsFormPerjadin.getCell('H26').value = formatDateIndo(mainRow.tanggal_pulang);
 
             wsFormPerjadin.getCell('H35').value = String(pegawaiList[0]?.nama || '');
             wsFormPerjadin.getCell('E39').value = String(mainRow.mak || '');
@@ -175,8 +175,8 @@
 
               wsFormPerjadin.getCell(`B${row}`).value = index + 1;
               wsFormPerjadin.getCell(`C${row}`).value = String(pegawai.nama || '');
-              wsFormPerjadin.getCell(`E${row}`).value = String(pegawai.jabatan || '');
-              wsFormPerjadin.getCell(`H${row}`).value = String(pegawai.golongan || '');
+              wsFormPerjadin.getCell(`F${row}`).value = String(pegawai.jabatan || '');
+              wsFormPerjadin.getCell(`I${row}`).value = String(pegawai.golongan || '');
             });
           }
 
@@ -206,8 +206,8 @@
               const row = START_ROW_ST + index;
               if (row > MAX_ROWS_ST) return;
 
-              wsSuratTugas.getCell(`A${row}`).value = index + 1;
-              wsSuratTugas.getCell(`B${row}`).value = String(pegawai.nama || '');
+              wsSuratTugas.getCell(`B${row}`).value = index + 1;
+              wsSuratTugas.getCell(`C${row}`).value = String(pegawai.nama || '');
               wsSuratTugas.getCell(`E${row}`).value = String(pegawai.golongan || '');
               wsSuratTugas.getCell(`G${row}`).value = String(pegawai.jabatan || '');
             });
